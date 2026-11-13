@@ -1,0 +1,1455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TABLE AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..700&family=Noto+Sans+TC:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Math&text=%E2%88%80%C2%AC%E2%86%92%E2%89%A1%E2%88%A8%CE%A3&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<script type="application/ld+json" id="ld"></script>
+<style>
+/* ============ Shell (theme-aware chrome around the article) ============ */
+:root{
+  color-scheme: light;
+  --s-bg:#F0EDEF; --s-surface:#FFFFFF; --s-text:#1B1B1D; --s-muted:#44474C; --s-line:#C5C6CD;
+  --s-strong:#0A1626; --s-on-strong:#FFFFFF; --s-gold:#A88B52; --s-mist:rgba(168,139,82,.10);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:calc(16px + env(safe-area-inset-top,0px));scroll-behavior:smooth}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --s-bg:#060E19; --s-surface:#101C2C; --s-text:#E8E9EC; --s-muted:#A9AEB8; --s-line:#3C4759;
+    --s-strong:#E8E9EC; --s-on-strong:#0A1626; --s-gold:#A88B52; --s-mist:rgba(168,139,82,.16);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --s-bg:#060E19; --s-surface:#101C2C; --s-text:#E8E9EC; --s-muted:#A9AEB8; --s-line:#3C4759;
+  --s-strong:#E8E9EC; --s-on-strong:#0A1626; --s-gold:#A88B52; --s-mist:rgba(168,139,82,.16);
+}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--s-bg);color:var(--s-text);font-family:Manrope,"Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,textarea,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--s-gold);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+.progress{position:fixed;left:0;right:0;top:0;height:calc(2px + env(safe-area-inset-top,0px));z-index:15;pointer-events:none;background:linear-gradient(var(--s-surface),var(--s-surface)) top/100% env(safe-area-inset-top,0px) no-repeat}
+.progress i{position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--s-gold);transform-origin:left;transform:scaleX(0);will-change:transform}
+
+.fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:16;width:48px;height:48px;border:1px solid var(--s-line);border-radius:2px;background:var(--s-surface);color:var(--s-strong);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 20px 60px -15px rgba(10,22,38,.25);transition:transform .4s cubic-bezier(.16,1,.3,1),opacity .4s}
+.fab:hover{border-color:var(--s-muted)}
+.fab svg{width:20px;height:20px}
+body.sheet-open .fab{opacity:0;pointer-events:none}
+
+.scrim{position:fixed;inset:0;background:rgba(10,22,38,.45);z-index:18;opacity:0;pointer-events:none;transition:opacity .4s cubic-bezier(.16,1,.3,1)}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);z-index:19;background:var(--s-surface);border-left:1px solid var(--s-line);display:flex;flex-direction:column;transform:translateX(102%);transition:transform .5s cubic-bezier(.16,1,.3,1);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.sheet.on{transform:none}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--s-line)}
+.sheet-head b{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.1em;font-size:14px;color:var(--s-strong)}
+.sheet-head b svg{width:26px;height:26px;display:block}
+.sheet-body{overflow:auto;flex:1;padding:4px 0 24px}
+.grp{padding:16px 20px;border-bottom:1px solid var(--s-line)}
+.grp h3{margin:0 0 12px;font-size:12px;font-weight:600;color:var(--s-muted)}
+.toc{list-style:none;margin:0;padding:0}
+.toc a{display:grid;grid-template-columns:32px 1fr;gap:4px;padding:9px 0;color:var(--s-text);text-decoration:none;font-size:14px;line-height:1.45;border-left:2px solid transparent;padding-left:10px;margin-left:-12px}
+.toc a .n{color:var(--s-muted);font-variant-numeric:tabular-nums;font-size:12px;padding-top:2px}
+.toc a.on{border-left-color:var(--s-gold);background:var(--s-mist)}
+.seg{display:inline-flex;border:1px solid var(--s-line);border-radius:2px;overflow:hidden}
+.seg button{border:0;background:none;padding:7px 14px;font-size:13px;color:var(--s-muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--s-strong);color:var(--s-on-strong)}
+.act{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--s-line);padding:12px 0;font-size:14px;cursor:pointer;color:var(--s-text)}
+.act:first-of-type{border-top:0}
+.act small{color:var(--s-muted);font-size:12px}
+.act[disabled]{opacity:.45;cursor:default}
+.chk{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--s-muted);padding-top:12px}
+.chk input{accent-color:var(--s-gold);width:16px;height:16px}
+.lib{list-style:none;margin:0;padding:0}
+.lib button{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--s-line);padding:10px 0;cursor:pointer;font-size:14px}
+.lib button small{display:block;color:var(--s-muted);font-size:12px;margin-top:2px}
+.lib button[aria-current="true"]{color:var(--s-gold)}
+.muted{font-size:13px;color:var(--s-muted);line-height:1.6;margin:0}
+.btn{border:1px solid var(--s-line);background:var(--s-surface);color:var(--s-strong);padding:8px 14px;border-radius:2px;font-size:13px;cursor:pointer}
+.btn.primary{background:var(--s-strong);color:var(--s-on-strong);border-color:var(--s-strong)}
+.btn[disabled]{opacity:.45}
+
+.modal{position:fixed;inset:0;z-index:30;background:rgba(10,22,38,.45);display:none;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
+.modal.on{display:flex}
+.mbox{background:var(--s-surface);border-radius:4px;width:min(760px,100%);max-height:100%;display:flex;flex-direction:column;overflow:hidden}
+.mbox header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--s-line)}
+.mbox header b{font-size:15px;font-weight:600;color:var(--s-strong)}
+.mbox .mbody{padding:14px 18px;overflow:auto;display:flex;flex-direction:column;gap:12px;flex:1}
+.mbox textarea,.mbox pre{width:100%;min-height:46vh;border:1px solid var(--s-line);border-radius:2px;background:var(--s-bg);color:var(--s-text);padding:12px;font-size:12px;line-height:1.55;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;resize:vertical;margin:0;white-space:pre-wrap;word-break:break-word}
+.mbox .row{display:flex;gap:8px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--s-line)}
+.mbox img{width:100%;border:1px solid var(--s-line)}
+.err{color:#BA1A1A;font-size:13px;min-height:1em;margin:0}
+
+.termsheet{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);z-index:17;width:min(520px,calc(100% - 32px));background:var(--s-surface);border:1px solid var(--s-line);border-radius:4px;padding:18px 20px;box-shadow:0 20px 60px -15px rgba(10,22,38,.3);transition:transform .45s cubic-bezier(.16,1,.3,1)}
+.termsheet.on{transform:translate(-50%,0)}
+.termsheet b{display:block;font-size:16px;font-weight:600;color:var(--s-strong);margin-bottom:6px}
+.termsheet p{margin:0 0 12px;font-size:14px;line-height:1.65;color:var(--s-text)}
+.termsheet .r{display:flex;gap:8px}
+.editor{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);z-index:21;background:var(--s-surface);border-left:1px solid var(--s-line);display:flex;flex-direction:column;transform:translateX(102%);transition:transform .5s cubic-bezier(.16,1,.3,1);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.editor.on{transform:none}
+.editor header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--s-line)}
+.editor header b{font-size:15px;font-weight:600;color:var(--s-strong)}
+.editor .eh-r{display:flex;gap:8px}
+.editor .ebody{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:12px 16px}
+.editor textarea{flex:1;min-height:0;width:100%;border:1px solid var(--s-line);border-radius:2px;background:var(--s-bg);color:var(--s-text);padding:12px;font-size:12.5px;line-height:1.6;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;resize:none;tab-size:2}
+.editor .row{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--s-line)}
+.editor .err{white-space:pre-line;max-height:7.5em;overflow:auto}
+.editor .chk{padding-top:0}
+body.editing.ed-open .fab{opacity:0;pointer-events:none}
+@media (min-width: 1100px){
+  body.editing.ed-open .stage{margin-right:560px}
+  body.editing.ed-open #article{--u:min(0.8px, calc((100vw - 600px) / 750))}
+  #edPreview{display:none}
+}
+/* Preview width: Auto follows the screen; Phone and Web simulate H5 and desktop reading. Exports always use the fixed 750 px layout. */
+#article[data-view="phone"]{--u:calc(390px / 750) !important;box-shadow:0 0 0 1px var(--s-line),0 20px 60px -15px rgba(10,22,38,.25)}
+#article[data-view="web"]{--u:0.8px !important}
+.stage:has(#article[data-view]){overflow-x:auto;padding-top:24px}
+.toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translate(-50%,-160%);z-index:40;background:var(--s-strong);color:var(--s-on-strong);padding:10px 16px;border-radius:4px;font-size:13px;transition:transform .4s cubic-bezier(.16,1,.3,1);max-width:90vw}
+.toast.on{transform:translate(-50%,0)}
+
+.stage{padding:0 0 96px}
+@media (min-width: 760px){.stage{padding:40px 16px 120px}}
+
+/* ============ Article (content rendered with theme tokens; fluid unit --u = 1/750 of the column) ============ */
+#article{
+  --u: min(0.8px, calc(100vw / 750));
+  --fs-cap:calc(20*var(--u)); --fs-small:calc(21*var(--u)); --fs-label:calc(23*var(--u)); --fs-body:calc(28*var(--u));
+  --fs-h3:calc(26*var(--u)); --fs-lead:calc(36*var(--u)); --fs-quote:calc(44*var(--u)); --fs-h2:calc(56*var(--u));
+  --fs-stat:calc(72*var(--u)); --fs-h1:calc(116*var(--u));
+  --px:calc(56*var(--u)); --rule:max(1px, calc(2*var(--u)));
+  width:calc(750*var(--u));margin:0 auto;background:var(--c-ground);color:var(--c-ink);
+  font-family:var(--font-sans),"Noto Sans TC",sans-serif;font-size:var(--fs-body);line-height:1.7;
+}
+#article:lang(zh-Hant-HK){font-family:var(--font-zh),var(--font-sans),sans-serif;line-height:1.85}
+#article h1,#article h2,#article .sub,#article .lead,#article .quote p,#article .prin .h,#article .end-line{text-wrap:balance}
+#article p.t,#article .prin .d,#article .fn,#article .note,#article .stat .l,#article .gl-d{text-wrap:pretty}
+.sec{position:relative;padding:calc(80*var(--u)) var(--px) calc(72*var(--u));content-visibility:auto;contain-intrinsic-size:auto calc(1400*var(--u))}
+.sec-cover{content-visibility:visible}
+.exporting .sec{content-visibility:visible}
+.logo{display:block;height:auto}
+.cover-logo{width:calc(230*var(--u));margin:0 0 calc(56*var(--u))}
+.foot-logo{width:calc(112*var(--u))}
+.ring-wrap{position:relative;width:calc(300*var(--u));margin:0 auto calc(48*var(--u))}
+.ring-wrap svg{width:100%;height:auto;display:block}
+.ring-wrap .logo{position:absolute;left:50%;top:50%;width:19%;transform:translate(-50%,-50%)}
+.sec + .sec{border-top:var(--rule) solid var(--c-hair)}
+.sec.dark{background:var(--c-panel);color:var(--c-panel-ink);border-top-color:var(--c-panel)}
+.sec.dark + .sec{border-top-color:var(--c-ground)}
+.sec-cover{padding-top:calc(96*var(--u))}
+.eyebrow{font-size:var(--fs-cap);font-weight:600;text-transform:uppercase;letter-spacing:.3em;color:var(--c-ink2);margin:0 0 calc(24*var(--u));line-height:1.4}
+:lang(zh-Hant-HK) .eyebrow{letter-spacing:0;font-size:calc(22*var(--u))}
+.accent{width:calc(64*var(--u));height:var(--rule);background:var(--c-deep);margin:0 0 calc(36*var(--u))}
+#article h1{font-weight:300;font-size:var(--fs-h1);line-height:.95;letter-spacing:-.03em;color:var(--c-deep);margin:0 0 calc(36*var(--u))}
+#article:lang(zh-Hant-HK) h1{font-size:calc(100*var(--u));letter-spacing:0;line-height:1.15}
+.sub{font-size:calc(34*var(--u));line-height:1.45;color:var(--c-ink2);font-weight:300;margin:0 0 calc(8*var(--u))}
+:lang(zh-Hant-HK) .sub{font-size:calc(32*var(--u));line-height:1.65}
+.byline{font-size:var(--fs-cap);color:var(--c-ink2);margin:0}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(var(--c-grid) var(--rule),transparent var(--rule)),linear-gradient(90deg,var(--c-grid) var(--rule),transparent var(--rule));background-size:calc(75*var(--u)) calc(75*var(--u));pointer-events:none}
+.cover-body{position:relative}
+.ring{position:relative;width:calc(560*var(--u));height:calc(560*var(--u));margin:calc(48*var(--u)) auto calc(16*var(--u))}
+.ring svg{position:absolute;inset:0;width:100%;height:100%}
+.ring .node{position:absolute;transform:translate(-50%,-50%);font-size:calc(24*var(--u));font-weight:600;color:var(--c-deep);white-space:nowrap;background:var(--c-ground);padding:calc(2*var(--u)) calc(8*var(--u))}
+:lang(zh-Hant-HK) .ring .node{font-size:calc(26*var(--u))}
+.ring .center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--c-ground);font-size:calc(21*var(--u));font-weight:600;letter-spacing:.04em;text-align:center;width:calc(120*var(--u))}
+:lang(zh-Hant-HK) .ring .center{letter-spacing:0;font-size:calc(24*var(--u))}
+.caption{font-size:calc(22*var(--u));line-height:1.5;color:var(--c-ink2);text-align:center;margin:0 0 calc(40*var(--u));text-wrap:balance}
+.lead{font-size:var(--fs-lead);line-height:1.55;font-weight:300;color:var(--c-deep);margin:0 0 calc(56*var(--u))}
+:lang(zh-Hant-HK) .lead{font-size:calc(34*var(--u));line-height:1.75}
+.num{font-size:var(--fs-cap);font-weight:600;letter-spacing:.2em;color:var(--c-ink2);margin:0 0 calc(16*var(--u))}
+#article h2{font-weight:300;font-size:var(--fs-h2);line-height:1.12;letter-spacing:-.025em;color:var(--c-deep);margin:0 0 calc(36*var(--u))}
+#article:lang(zh-Hant-HK) h2{font-size:calc(50*var(--u));letter-spacing:0;line-height:1.3}
+p.t{margin:0 0 calc(32*var(--u))}
+.term{border-bottom:var(--rule) dotted var(--c-gold);cursor:help}
+.term:hover{background:var(--c-mist)}
+.exporting .term{border-bottom:0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--rule);background:var(--c-hair);border:var(--rule) solid var(--c-hair);margin:calc(40*var(--u)) 0 calc(8*var(--u))}
+.stat{background:var(--c-ground);padding:calc(32*var(--u)) calc(28*var(--u))}
+.stat .v{font-size:var(--fs-stat);font-weight:300;letter-spacing:-.03em;line-height:1;color:var(--c-deep);font-variant-numeric:tabular-nums;margin-bottom:calc(16*var(--u))}
+:lang(zh-Hant-HK) .stat .v{font-size:calc(64*var(--u));letter-spacing:-.01em}
+.stat.key .v{color:var(--c-gold-text)}
+.stat .l{font-size:var(--fs-small);line-height:1.5;color:var(--c-ink2)}
+.prin{list-style:none;margin:calc(8*var(--u)) 0 0;padding:0}
+.prin li{display:grid;grid-template-columns:calc(84*var(--u)) 1fr;gap:calc(4*var(--u));padding:calc(30*var(--u)) 0;border-top:var(--rule) solid var(--c-hair)}
+.prin li:last-child{border-bottom:var(--rule) solid var(--c-hair)}
+.prin .n{font-size:calc(60*var(--u));font-weight:200;line-height:1;color:var(--c-deep);opacity:.35;font-variant-numeric:tabular-nums}
+.prin .h{font-size:calc(30*var(--u));font-weight:600;color:var(--c-deep);margin:0 0 calc(8*var(--u));line-height:1.35}
+.prin .d{font-size:calc(25*var(--u));color:var(--c-ink2);margin:0;line-height:1.6}
+.fig{border:var(--rule) solid var(--c-hair);padding:calc(32*var(--u));margin:calc(40*var(--u)) 0}
+.fig .ft{font-size:var(--fs-h3);font-weight:600;color:var(--c-deep);margin:0 0 calc(6*var(--u));line-height:1.35}
+.fig .fs{font-size:var(--fs-cap);color:var(--c-ink2);margin:0 0 calc(28*var(--u));line-height:1.5}
+.fig .fn{font-size:var(--fs-cap);color:var(--c-ink2);margin:calc(24*var(--u)) 0 0;line-height:1.6}
+.sbar{display:flex;height:calc(64*var(--u));margin-bottom:calc(24*var(--u))}
+.legend .r{display:grid;grid-template-columns:calc(20*var(--u)) 1fr auto;gap:calc(16*var(--u));align-items:center;padding:calc(14*var(--u)) 0;border-top:var(--rule) solid var(--c-hair);font-size:var(--fs-label);line-height:1.4}
+.legend .sw{width:calc(20*var(--u));height:calc(20*var(--u))}
+.legend .val{font-variant-numeric:tabular-nums;font-weight:600;color:var(--c-deep)}
+.ranges .r{padding:calc(12*var(--u)) 0}
+.ranges .lab{font-size:calc(22*var(--u));line-height:1.35;margin-bottom:calc(8*var(--u))}
+.ranges .track{position:relative;height:calc(36*var(--u))}
+.ranges .gridl{position:absolute;top:calc(-6*var(--u));bottom:calc(-6*var(--u));width:var(--rule);background:var(--c-hair)}
+.ranges .bar{position:absolute;top:calc(10*var(--u));height:calc(16*var(--u))}
+.ranges .dot{position:absolute;top:calc(8*var(--u));width:calc(20*var(--u));height:calc(20*var(--u));border-radius:50%;margin-left:calc(-10*var(--u))}
+.ranges .vl{position:absolute;top:0;font-size:var(--fs-small);font-weight:600;color:var(--c-deep);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:calc(36*var(--u))}
+.ranges .ticks{position:relative;height:calc(28*var(--u));font-size:calc(18*var(--u));color:var(--c-ink2);margin-top:calc(12*var(--u))}
+.ranges .ticks span{position:absolute;transform:translateX(-50%)}
+.ranges .ticks span:first-child{transform:none}
+.ranges .ticks span:last-child{transform:translateX(-100%)}
+.layers .band{border:var(--rule) solid var(--c-hair)}
+.layers .conn{width:var(--rule);height:calc(24*var(--u));background:var(--c-outline);margin:0 auto}
+.layers .bt{padding:calc(16*var(--u)) calc(20*var(--u));font-size:var(--fs-label);font-weight:600;color:var(--c-deep);border-bottom:var(--rule) solid var(--c-hair)}
+.layers .items{display:flex;flex-wrap:wrap;gap:calc(12*var(--u));padding:calc(18*var(--u)) calc(20*var(--u))}
+.layers .chip{border:var(--rule) solid var(--c-hair);border-radius:2px;padding:calc(8*var(--u)) calc(14*var(--u));font-size:var(--fs-small);line-height:1.35}
+.layers .band.dark{background:var(--c-panel);border-color:var(--c-panel)}
+.layers .band.dark .bt{color:var(--c-panel-ink);border-bottom-color:var(--c-panel-line)}
+.layers .band.dark .chip{color:var(--c-panel-ink);border-color:var(--c-gold)}
+.steps{margin:calc(36*var(--u)) 0}
+.steps .s{display:grid;grid-template-columns:calc(68*var(--u)) 1fr;gap:calc(8*var(--u));position:relative;padding:0 0 calc(30*var(--u))}
+.steps .s::before{content:"";position:absolute;left:calc(19*var(--u));top:calc(44*var(--u));bottom:calc(4*var(--u));width:var(--rule);background:var(--c-hair)}
+.steps .s:last-child::before{display:none}
+.steps .i{width:calc(40*var(--u));height:calc(40*var(--u));border:var(--rule) solid var(--c-deep);border-radius:50%;font-size:calc(19*var(--u));font-weight:600;color:var(--c-deep);display:flex;align-items:center;justify-content:center;background:var(--c-ground);position:relative}
+.steps .s:last-child .i{border-color:var(--c-gold);color:var(--c-gold-text)}
+.steps .tx{font-size:calc(26*var(--u));line-height:1.45;padding-top:calc(2*var(--u))}
+.tl{margin:calc(36*var(--u)) 0}
+.tl .r{display:grid;grid-template-columns:calc(210*var(--u)) 1fr;gap:calc(20*var(--u));padding:calc(24*var(--u)) 0;border-top:var(--rule) solid var(--c-hair)}
+.tl .r:last-child{border-bottom:var(--rule) solid var(--c-hair)}
+.tl .d{font-size:var(--fs-label);font-weight:600;color:var(--c-deep);line-height:1.45}
+.tl .x{font-size:calc(25*var(--u));line-height:1.5}
+.quote{margin:calc(56*var(--u)) 0 calc(8*var(--u))}
+.quote .gl{width:calc(64*var(--u));height:var(--rule);background:var(--c-gold);margin-bottom:calc(28*var(--u))}
+.quote p{font-size:var(--fs-quote);font-weight:300;line-height:1.35;color:var(--c-deep);margin:0;letter-spacing:-.015em}
+:lang(zh-Hant-HK) .quote p{font-size:calc(40*var(--u));letter-spacing:0;line-height:1.55}
+.ending{text-align:center;padding:calc(24*var(--u)) 0 calc(16*var(--u))}
+.end-line{font-size:calc(64*var(--u));font-weight:300;line-height:1.15;letter-spacing:-.025em;margin:0 0 calc(44*var(--u));color:var(--c-panel-ink)}
+:lang(zh-Hant-HK) .end-line{font-size:calc(60*var(--u));letter-spacing:0;line-height:1.35}
+.formula{display:inline-flex;flex-direction:column;gap:calc(10*var(--u));border-top:var(--rule) solid var(--c-panel-line);border-bottom:var(--rule) solid var(--c-panel-line);padding:calc(28*var(--u)) calc(32*var(--u));margin:0 0 calc(44*var(--u))}
+.formula span{font-family:"Noto Sans Math","Cambria Math","STIX Two Math",var(--font-sans),var(--font-zh),serif;font-size:calc(34*var(--u));line-height:1.4;color:var(--c-gold-on-panel);white-space:nowrap}
+.formula span + span{color:var(--c-panel-ink2)}
+.end-cap{font-size:calc(25*var(--u));line-height:1.65;color:var(--c-panel-ink2);margin:0 auto;max-width:calc(560*var(--u));text-wrap:pretty}
+.glos{margin:0;padding:0}
+.glos div{padding:calc(22*var(--u)) 0;border-top:var(--rule) solid var(--c-hair)}
+.glos div:last-child{border-bottom:var(--rule) solid var(--c-hair)}
+.glos dt{font-size:calc(26*var(--u));font-weight:600;color:var(--c-deep);margin:0 0 calc(6*var(--u))}
+.glos dd{margin:0;font-size:calc(23*var(--u));line-height:1.6;color:var(--c-ink2)}
+.src{list-style:none;padding:0;margin:calc(8*var(--u)) 0 calc(40*var(--u));counter-reset:s}
+.src li{counter-increment:s;display:grid;grid-template-columns:calc(40*var(--u)) 1fr;font-size:var(--fs-small);line-height:1.5;padding:calc(16*var(--u)) 0;border-top:var(--rule) solid var(--c-hair)}
+.src li::before{content:counter(s);color:var(--c-ink2);font-variant-numeric:tabular-nums}
+.src .u{display:block;color:var(--c-ink2);font-size:calc(17*var(--u));word-break:break-all;margin-top:calc(4*var(--u))}
+.note{font-size:calc(19*var(--u));line-height:1.65;color:var(--c-ink2);margin:0}
+.pfoot{display:flex;justify-content:space-between;align-items:center;margin-top:calc(64*var(--u));padding-top:calc(20*var(--u));border-top:var(--rule) solid var(--c-hair);font-size:calc(18*var(--u));color:var(--c-ink2)}
+.sec.dark .pfoot{border-top-color:var(--c-panel-line);color:var(--c-panel-ink2)}
+.pfoot .pg{font-variant-numeric:tabular-nums;letter-spacing:.05em}
+.endfoot{padding:calc(40*var(--u)) var(--px) calc(48*var(--u));border-top:var(--rule) solid var(--c-hair);display:flex;justify-content:space-between;align-items:center;font-size:calc(18*var(--u));color:var(--c-ink2)}
+</style>
+</head>
+<body>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+<main class="stage"><article id="article" aria-live="polite"></article></main>
+
+<button class="fab" id="fab" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sheet">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+</button>
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" aria-label="Menu" aria-hidden="true">
+  <div class="sheet-head"><b><span id="sheetMark" aria-hidden="true"></span>TABLE AI</b><button class="btn" type="button" id="sheetClose" data-ui="close">Close</button></div>
+  <div class="sheet-body">
+    <section class="grp"><h3 data-ui="contents">Contents</h3><ol class="toc" id="toc"></ol></section>
+    <section class="grp"><h3 data-ui="language">Language</h3>
+      <div class="seg" id="langSeg"><button type="button" data-v="en">EN</button><button type="button" data-v="zh">繁中</button></div></section>
+    <section class="grp"><h3 data-ui="theme">Theme</h3>
+      <div class="seg" id="themeSeg"><button type="button" data-v="auto" data-ui="auto">Auto</button><button type="button" data-v="light" data-ui="light">Light</button><button type="button" data-v="night" data-ui="night">Night</button></div></section>
+    <section class="grp"><h3 data-ui="view">Preview width</h3>
+      <div class="seg" id="viewSeg"><button type="button" data-v="auto" data-ui="viewAuto">Auto</button><button type="button" data-v="phone" data-ui="viewPhone">Phone H5</button><button type="button" data-v="web" data-ui="viewWeb">Web</button></div>
+      <p class="muted" data-ui="viewNote" style="margin-top:10px"></p></section>
+    <section class="grp"><h3 data-ui="export">Export images</h3>
+      <button class="act" type="button" data-exp="long"><span data-ui="long">Long image</span><small>PNG</small></button>
+      <button class="act" type="button" data-exp="stitched"><span data-ui="stitched">Stitched image</span><small>PNG</small></button>
+      <button class="act" type="button" data-exp="zip"><span data-ui="zip">Sections</span><small>ZIP</small></button>
+      <label class="chk"><input type="checkbox" id="pageNums" checked><span data-ui="pages">Page numbers on stitched and section images</span></label>
+    </section>
+    <section class="grp"><h3 data-ui="library">Library</h3><ul class="lib" id="lib"></ul><p class="muted" id="libNote"></p></section>
+    <section class="grp"><h3 data-ui="article">Article</h3>
+      <button class="act" type="button" id="editOpen"><span data-ui="edit">Edit content</span><small>JSON</small></button>
+      <button class="act" type="button" id="dataOpen"><span data-ui="data">Data, API and MCP</span><small>v2</small></button>
+    </section>
+  </div>
+</aside>
+
+<div class="termsheet" id="termsheet" role="dialog" aria-modal="false" aria-labelledby="termT"><b id="termT"></b><p id="termD"></p>
+  <div class="r"><button class="btn" type="button" id="termAll" data-ui="glossary">Glossary</button><button class="btn" type="button" id="termClose" data-ui="close">Close</button></div></div>
+
+<aside class="editor" id="editor" aria-label="Edit content" aria-hidden="true">
+  <header><b data-ui="edit">Edit content</b><span class="eh-r"><button class="btn" type="button" id="edPreview" data-ui="preview">Preview</button><button class="btn" type="button" id="edClose" data-ui="close">Close</button></span></header>
+  <div class="ebody">
+    <div class="seg" id="fmtSeg"><button type="button" data-v="md-en">Markdown EN</button><button type="button" data-v="md-zh">Markdown 繁中</button><button type="button" data-v="json">JSON</button></div>
+    <p class="muted" data-ui="editHelp"></p>
+    <textarea id="src" spellcheck="false" aria-label="Article source"></textarea>
+    <label class="chk"><input type="checkbox" id="livePrev" checked><span data-ui="livePreview">Live preview while typing</span></label>
+    <p class="err" id="err" role="alert"></p>
+  </div>
+  <div class="row"><button class="btn primary" type="button" id="publishBtn" data-ui="saveLib">Save to library</button><button class="btn" type="button" id="applyBtn" data-ui="apply">Apply</button><button class="btn" type="button" id="saveFile" data-ui="saveFile">Save file</button><button class="btn" type="button" id="loadFile" data-ui="loadFile">Load file</button><button class="btn" type="button" id="restore" data-ui="restore">Restore built-in</button><input type="file" id="fileIn" accept=".md,.json,text/markdown,application/json" hidden></div>
+</aside>
+<div class="modal" id="dataModal" role="dialog" aria-modal="true" aria-label="Data, API and MCP"><div class="mbox">
+  <header><b data-ui="data">Data, API and MCP</b><button class="btn" type="button" data-close data-ui="close">Close</button></header>
+  <div class="mbody"><pre id="dataPre"></pre></div>
+  <div class="row"><button class="btn primary" type="button" id="copyJson" data-ui="copy">Copy article JSON</button></div>
+</div></div>
+<div class="modal" id="imgModal" role="dialog" aria-modal="true" aria-label="Image preview"><div class="mbox">
+  <header><b data-ui="preview">Preview</b><button class="btn" type="button" data-close data-ui="close">Close</button></header>
+  <div class="mbody"><p class="muted" data-ui="holdSave"></p><img id="imgPrev" alt=""></div>
+</div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+// packages/core/src/types.js
+/** tableai.article/v2 — the contract shared by the reader, exporter, REST API and MCP server. */
+const SCHEMA = "tableai.article/v2";
+function pick(v, locale) {
+    if (v == null)
+        return "";
+    return typeof v === "string" ? v : (v[locale] ?? v.en);
+}
+
+// packages/core/src/inline.js
+const TERM = /\[\[([a-z0-9-]+)(?:\|([^\]]+))?\]\]/g;
+function parseInline(source, article, locale) {
+    const out = [];
+    let last = 0;
+    for (const m of source.matchAll(TERM)) {
+        const at = m.index ?? 0;
+        if (at > last)
+            out.push({ kind: "text", text: source.slice(last, at) });
+        const term = article.terms?.[m[1]];
+        const label = m[2] ?? (term ? pick(term.term, locale) : m[1]);
+        out.push(term ? { kind: "term", id: m[1], label } : { kind: "text", text: label });
+        last = at + m[0].length;
+    }
+    if (last < source.length)
+        out.push({ kind: "text", text: source.slice(last) });
+    return out;
+}
+/** Every term id referenced in the article, for validation and glossary pruning. */
+function referencedTerms(article) {
+    const ids = new Set();
+    const walk = (v) => {
+        if (typeof v === "string")
+            for (const m of v.matchAll(TERM))
+                ids.add(m[1]);
+        else if (Array.isArray(v))
+            v.forEach(walk);
+        else if (v && typeof v === "object")
+            Object.values(v).forEach(walk);
+    };
+    walk(article.sections);
+    return ids;
+}
+
+// packages/core/src/validate.js
+function validate(input) {
+    const issues = [];
+    const a = input;
+    if (!a || typeof a !== "object")
+        return { ok: false, issues: [{ path: "", message: "Not an object." }] };
+    if (a.schema !== SCHEMA)
+        issues.push({ path: "schema", message: `Must be "${SCHEMA}".` });
+    if (typeof a.id !== "string" || !/^[a-z0-9-]{3,80}$/.test(a.id))
+        issues.push({ path: "id", message: "3–80 lowercase letters, digits or hyphens." });
+    if (!Array.isArray(a.sections) || a.sections.length === 0)
+        issues.push({ path: "sections", message: "Must be a non-empty array." });
+    const seen = new Set();
+    a.sections?.forEach((s, i) => {
+        if (!s.id)
+            issues.push({ path: `sections[${i}].id`, message: "Required." });
+        else if (seen.has(s.id))
+            issues.push({ path: `sections[${i}].id`, message: `Duplicate id "${s.id}".` });
+        else
+            seen.add(s.id);
+        if (!Array.isArray(s.blocks))
+            issues.push({ path: `sections[${i}].blocks`, message: "Must be an array." });
+    });
+    if (issues.length === 0) {
+        for (const id of referencedTerms(a)) {
+            if (!a.terms?.[id])
+                issues.push({ path: `terms.${id}`, message: "Referenced in text but not defined." });
+        }
+    }
+    return issues.length ? { ok: false, issues } : { ok: true, article: a };
+}
+
+// packages/core/src/markdown.js
+/**
+ * Markdown ⇄ tableai.article/v2.
+ *
+ * One Markdown file per locale (`<id>.en.md`, `<id>.zh.md`) with the same structure.
+ * `fromMarkdown` parses each file into a single-language tree and merges them into
+ * `{ en, zh }` text fields; `toMarkdown` writes one locale back out. Round-trips are lossless
+ * for every block type the reader renders.
+ *
+ * Dialect
+ *   ---                                   front matter: schema, id, slug, status, version, date,
+ *   key: value                            locale, locales, brand (name | site | contact), title, summary
+ *   ---
+ *   ::: terms                             glossary definitions: - id | Term | Definition
+ *   ## 01 Section title {#id .kind .dark .notoc label="Contents label"}
+ *   Plain paragraph.                      → p      (inline terms: [[id]] or [[id|label]])
+ *   > Quoted line.                        → quote
+ *   ::: lead | note … :::                 → text blocks
+ *   ::: stats | principles | steps | timeline | sources | stacked | ranges | layers | cover | ending | glossary
+ *   - cell | cell | cell {flag}           list rows inside a directive; key: value lines for settings
+ */
+
+const cell = (s) => s.replace(/\|/g, "\\|");
+const cells = (row) => row.split(/\s*(?<!\\)\|\s*/).map(x => x.replace(/\\\|/g, "|").trim());
+const ITEM = /^\s*-\s+/;
+const FLAG = /\s*\{(key|dark)\}\s*$/;
+const LIST_SEP = " ; ";
+const FORMULA_SEP = " || ";
+/* ----------------------------- writer ----------------------------- */
+function toMarkdown(a, locale) {
+    const P = (v) => pick(v, locale);
+    const fm = ["---", `schema: ${a.schema}`, `id: ${a.id}`];
+    if (a.slug)
+        fm.push(`slug: ${a.slug}`);
+    if (a.status)
+        fm.push(`status: ${a.status}`);
+    if (a.version != null)
+        fm.push(`version: ${a.version}`);
+    if (a.date)
+        fm.push(`date: ${a.date}`);
+    fm.push(`locale: ${locale}`);
+    if (a.locales?.length)
+        fm.push(`locales: ${a.locales.join(", ")}`);
+    if (a.brand)
+        fm.push(`brand: ${[a.brand.name, a.brand.site ?? "", a.brand.contact ?? ""].join(" | ")}`);
+    fm.push(`title: ${P(a.title)}`);
+    if (a.summary)
+        fm.push(`summary: ${P(a.summary)}`);
+    fm.push("---");
+    const out = [fm.join("\n")];
+    const terms = Object.entries(a.terms ?? {});
+    if (terms.length)
+        out.push(["::: terms", ...terms.map(([id, t]) => `- ${id} | ${cell(P(t.term))} | ${cell(P(t.def))}`), ":::"].join("\n"));
+    for (const s of a.sections) {
+        const attrs = [`#${s.id}`];
+        if (s.kind && s.kind !== "body")
+            attrs.push(`.${s.kind}`);
+        if (s.tone === "dark")
+            attrs.push(".dark");
+        if (s.toc === false)
+            attrs.push(".notoc");
+        if (s.tocLabel)
+            attrs.push(`label="${P(s.tocLabel).replace(/"/g, "'")}"`);
+        const head = [s.num, s.title ? P(s.title) : ""].filter(Boolean).join(" ");
+        out.push(`## ${head ? head + " " : ""}{${attrs.join(" ")}}`);
+        for (const b of s.blocks)
+            out.push(blockToMd(b, P));
+    }
+    return out.join("\n\n") + "\n";
+}
+function directive(name, lines) {
+    return [`::: ${name}`, ...lines, ":::"].join("\n");
+}
+function blockToMd(b, P) {
+    const kv = (k, v) => (v == null ? [] : [`${k}: ${P(v)}`]);
+    switch (b.type) {
+        case "p": return P(b.text);
+        case "quote": return `> ${P(b.text)}`;
+        case "lead":
+        case "note": return directive(b.type, [P(b.text)]);
+        case "stats": return directive("stats", b.items.map((i) => `- ${cell(P(i.value))} | ${cell(P(i.label))}${i.key ? " {key}" : ""}`));
+        case "principles": return directive("principles", b.items.map((i) => `- ${cell(P(i.title))} | ${cell(P(i.text))}`));
+        case "steps": return directive("steps", b.items.map((i) => `- ${cell(P(i))}`));
+        case "timeline": return directive("timeline", b.items.map((i) => `- ${cell(P(i.date))} | ${cell(P(i.text))}`));
+        case "sources": return directive("sources", b.items.map((i) => `- ${cell(P(i.label))} | ${i.url ?? ""}`));
+        case "stacked": return directive("stacked", [...kv("title", b.title), ...kv("subtitle", b.subtitle), ...kv("note", b.note),
+            ...b.segments.map((g) => `- ${cell(P(g.label))} | ${g.value} | ${g.tone ?? ""}`)]);
+        case "ranges": return directive("ranges", [...kv("title", b.title), ...kv("subtitle", b.subtitle), ...kv("note", b.note),
+            ...(b.max != null ? [`max: ${b.max}`] : []), ...(b.ticks ? [`ticks: ${b.ticks.join(", ")}`] : []),
+            ...b.rows.map((r) => `- ${cell(P(r.label))} | ${r.low} | ${r.high} | ${r.tone ?? ""}`)]);
+        case "layers": return directive("layers", b.rows.map((r) => `- ${cell(P(r.title))} | ${r.items.map((i) => cell(P(i))).join(LIST_SEP)}${r.dark ? " {dark}" : ""}`));
+        case "cover": return directive("cover", [...kv("eyebrow", b.eyebrow), ...kv("subtitle", b.subtitle), ...kv("byline", b.byline),
+            ...(b.ring ? [`ring.center: ${P(b.ring.center)}`, `ring.nodes: ${b.ring.nodes.map((n) => P(n)).join(LIST_SEP)}`, ...kv("ring.caption", b.ring.caption)] : [])]);
+        case "ending": return directive("ending", [...kv("line", b.line), `formula: ${b.formula.map((f) => P(f)).join(FORMULA_SEP)}`, ...kv("caption", b.caption)]);
+        case "glossary": return directive("glossary", []);
+        default: return directive(b.type, []);
+    }
+}
+function parseMono(md, locale) {
+    const issues = [];
+    const meta = {};
+    const terms = {};
+    const sections = [];
+    const joiner = locale === "zh" ? "" : " ";
+    let lines = md.replace(/\r\n?/g, "\n").split("\n");
+    if (lines[0]?.trim() === "---") {
+        const end = lines.indexOf("---", 1);
+        if (end < 0)
+            issues.push("Front matter is not closed with ---.");
+        for (const l of lines.slice(1, end < 0 ? lines.length : end)) {
+            const i = l.indexOf(":");
+            if (i > 0)
+                meta[l.slice(0, i).trim()] = l.slice(i + 1).trim();
+        }
+        lines = end < 0 ? [] : lines.slice(end + 1);
+    }
+    else
+        issues.push("Missing front matter (--- … ---).");
+    let section = null;
+    let para = [];
+    const push = (b, line) => {
+        if (!section) {
+            issues.push(`Line ${line}: content before the first ## section.`);
+            return;
+        }
+        section.blocks.push(b);
+    };
+    const flush = (line) => { if (para.length) {
+        push({ type: "p", text: para.join(joiner).trim() }, line);
+        para = [];
+    } };
+    for (let i = 0; i < lines.length; i++) {
+        const raw = lines[i], line = raw.trim(), n = i + 1;
+        if (!line) {
+            flush(n);
+            continue;
+        }
+        if (line.startsWith("## ") || line === "##") {
+            flush(n);
+            section = parseHeading(line, sections.length, issues, n);
+            sections.push(section);
+            continue;
+        }
+        const d = line.match(/^:::\s*([a-z]+)\s*$/);
+        if (d) {
+            flush(n);
+            const body = [];
+            let j = i + 1;
+            while (j < lines.length && lines[j].trim() !== ":::")
+                body.push(lines[j++]);
+            if (j >= lines.length)
+                issues.push(`Line ${n}: ::: ${d[1]} is not closed.`);
+            i = j;
+            if (d[1] === "terms") {
+                for (const row of body.filter(l => ITEM.test(l))) {
+                    const [id, term, def] = cells(row.replace(ITEM, ""));
+                    if (id)
+                        terms[id] = { term: term ?? "", def: def ?? "" };
+                }
+            }
+            else {
+                const b = parseDirective(d[1], body, joiner, issues, n);
+                if (b)
+                    push(b, n);
+            }
+            continue;
+        }
+        if (line.startsWith(">")) {
+            flush(n);
+            const q = [line.replace(/^>\s?/, "")];
+            while (i + 1 < lines.length && lines[i + 1].trim().startsWith(">"))
+                q.push(lines[++i].trim().replace(/^>\s?/, ""));
+            push({ type: "quote", text: q.join(joiner).trim() }, n);
+            continue;
+        }
+        para.push(line);
+    }
+    flush(lines.length);
+    return { meta, terms, sections, issues };
+}
+function parseHeading(line, index, issues, n) {
+    const m = line.match(/^##\s*(.*?)\s*(?:\{([^}]*)\})?\s*$/) ?? ["", "", ""];
+    const text = (m[1] ?? "").trim(), attrs = m[2] ?? "";
+    const s = { id: "", blocks: [] };
+    const num = text.match(/^(\d{1,3})\s+(.*)$/);
+    if (num) {
+        s.num = num[1];
+        if (num[2])
+            s.title = num[2];
+    }
+    else if (text)
+        s.title = text;
+    for (const t of attrs.matchAll(/label="([^"]*)"|(\S+)/g)) {
+        if (t[1] != null)
+            s.tocLabel = t[1];
+        else if (t[2].startsWith("#"))
+            s.id = t[2].slice(1);
+        else if (t[2] === ".cover" || t[2] === ".ending")
+            s.kind = t[2].slice(1);
+        else if (t[2] === ".dark")
+            s.tone = "dark";
+        else if (t[2] === ".notoc")
+            s.toc = false;
+    }
+    if (!s.id) {
+        s.id = `section-${index + 1}`;
+        issues.push(`Line ${n}: section has no {#id}; using ${s.id}.`);
+    }
+    return s;
+}
+function parseDirective(name, body, joiner, issues, n) {
+    const rows = body.filter(l => ITEM.test(l)).map(l => l.replace(ITEM, ""));
+    const kv = {};
+    for (const l of body) {
+        if (ITEM.test(l))
+            continue;
+        const i = l.indexOf(":");
+        if (i > 0)
+            kv[l.slice(0, i).trim()] = l.slice(i + 1).trim();
+    }
+    const flagged = (r) => { const f = r.match(FLAG); return { row: r.replace(FLAG, ""), flag: f?.[1] }; };
+    const num = (s) => (s == null || s === "" ? undefined : Number(s));
+    const opt = (o, k, v) => { if (v != null && v !== "")
+        o[k] = v; return o; };
+    switch (name) {
+        case "lead":
+        case "note": return { type: name, text: body.map(l => l.trim()).filter(Boolean).join(joiner) };
+        case "stats": return { type: "stats", items: rows.map(r => { const { row, flag } = flagged(r); const [value, label] = cells(row); return flag === "key" ? { value, label, key: true } : { value, label }; }) };
+        case "principles": return { type: "principles", items: rows.map(r => { const [title, text] = cells(r); return { title, text }; }) };
+        case "steps": return { type: "steps", items: rows.map(r => cells(r)[0]) };
+        case "timeline": return { type: "timeline", items: rows.map(r => { const [date, text] = cells(r); return { date, text }; }) };
+        case "sources": return { type: "sources", items: rows.map(r => { const [label, url] = cells(r); return url ? { label, url } : { label }; }) };
+        case "stacked": {
+            const b = opt(opt(opt({ type: "stacked" }, "title", kv.title), "subtitle", kv.subtitle), "note", kv.note);
+            b.segments = rows.map(r => { const [label, value, tone] = cells(r); return opt({ label, value: Number(value) }, "tone", tone); });
+            return b;
+        }
+        case "ranges": {
+            const b = opt(opt(opt({ type: "ranges" }, "title", kv.title), "subtitle", kv.subtitle), "note", kv.note);
+            if (kv.max)
+                b.max = num(kv.max);
+            if (kv.ticks)
+                b.ticks = kv.ticks.split(",").map(t => Number(t.trim()));
+            b.rows = rows.map(r => { const [label, low, high, tone] = cells(r); return opt({ label, low: Number(low), high: Number(high) }, "tone", tone); });
+            return b;
+        }
+        case "layers": return { type: "layers", rows: rows.map(r => {
+                const { row, flag } = flagged(r);
+                const [title, items] = cells(row);
+                const o = { title, items: (items ?? "").split(/\s*;\s*/).filter(Boolean) };
+                if (flag === "dark")
+                    o.dark = true;
+                return o;
+            }) };
+        case "cover": {
+            const b = opt(opt(opt({ type: "cover" }, "eyebrow", kv.eyebrow), "subtitle", kv.subtitle), "byline", kv.byline);
+            if (kv["ring.center"] || kv["ring.nodes"])
+                b.ring = opt({ center: kv["ring.center"] ?? "", nodes: (kv["ring.nodes"] ?? "").split(/\s*;\s*/).filter(Boolean) }, "caption", kv["ring.caption"]);
+            return b;
+        }
+        case "ending": return opt({ type: "ending", line: kv.line ?? "", formula: (kv.formula ?? "").split(/\s*\|\|\s*/).filter(Boolean) }, "caption", kv.caption);
+        case "glossary": return { type: "glossary" };
+        default:
+            issues.push(`Line ${n}: unknown directive ::: ${name}.`);
+            return null;
+    }
+}
+/* ----------------------------- merge ----------------------------- */
+const STRUCTURAL = new Set(["id", "type", "kind", "tone", "num", "url", "key", "dark", "toc"]);
+function merge(en, zh, issues, path) {
+    if (typeof en === "string") {
+        if (zh === undefined)
+            return { en };
+        if (typeof zh !== "string") {
+            issues.push(`${path}: the zh file has a different structure here.`);
+            return { en };
+        }
+        return { en, zh };
+    }
+    if (Array.isArray(en)) {
+        if (zh !== undefined && (!Array.isArray(zh) || zh.length !== en.length))
+            issues.push(`${path}: en has ${en.length} items, zh has ${Array.isArray(zh) ? zh.length : 0}.`);
+        return en.map((x, i) => merge(x, Array.isArray(zh) ? zh[i] : undefined, issues, `${path}[${i}]`));
+    }
+    if (en && typeof en === "object") {
+        const o = {};
+        for (const k of Object.keys(en))
+            o[k] = STRUCTURAL.has(k) ? en[k] : merge(en[k], zh?.[k], issues, path ? `${path}.${k}` : k);
+        return o;
+    }
+    return en;
+}
+function fromMarkdown(sources) {
+    if (!sources.en)
+        return { article: null, issues: ["The English Markdown file is required."] };
+    const en = parseMono(sources.en, "en");
+    const zh = sources.zh ? parseMono(sources.zh, "zh") : undefined;
+    const issues = [...en.issues, ...(zh?.issues ?? []).map(x => `zh: ${x}`)];
+    const m = en.meta;
+    if (zh && zh.meta.id && zh.meta.id !== m.id)
+        issues.push(`zh: id "${zh.meta.id}" does not match en id "${m.id}".`);
+    const article = { schema: m.schema || SCHEMA, id: m.id };
+    if (m.slug)
+        article.slug = m.slug;
+    if (m.status)
+        article.status = m.status;
+    if (m.version)
+        article.version = Number(m.version);
+    if (m.date)
+        article.date = m.date;
+    if (m.brand) {
+        const [name, site, contact] = cells(m.brand);
+        article.brand = { name, ...(site ? { site } : {}), ...(contact ? { contact } : {}) };
+    }
+    if (m.locales)
+        article.locales = m.locales.split(",").map(s => s.trim()).filter(Boolean);
+    article.title = merge(m.title ?? "", zh?.meta.title, issues, "title");
+    if (m.summary)
+        article.summary = merge(m.summary, zh?.meta.summary, issues, "summary");
+    if (Object.keys(en.terms).length)
+        article.terms = merge(en.terms, zh?.terms, issues, "terms");
+    article.sections = merge(en.sections, zh?.sections, issues, "sections");
+    return { article: article, issues };
+}
+
+// apps/reader/src/reader.js
+/**
+ * TABLE AI Reader — H5 reading, live Markdown editing and image export for tableai.article/v2.
+ * Built into one self-contained HTML file by scripts/build-reader.ts.
+ */
+
+const BUILTIN = {"schema":"tableai.article/v2","id":"uce-manifesto-01","slug":"the-user-centered-era","status":"published","version":3,"date":"2026-11-08","brand":{"name":"TABLE AI","site":"tableai.ai","contact":"hi@tableai.ai"},"locales":["en","zh-Hant-HK"],"title":{"en":"The User Centered Era","zh":"用戶中心時代"},"summary":{"en":"A manifesto for the AI era: intellectual equality, value over price, and an economy in which those who create value own a lasting share of it.","zh":"一份 AI 時代的宣言：智力平權、價值超越價格，讓創造價值的人擁有價值的持久份額。"},"terms":{"everstake":{"term":{"en":"Everstake","zh":"恆久權益"},"def":{"en":"A perpetual, non-transferable customer share, funded only by transaction flow and never by new deposits.","zh":"永久、不可轉讓的顧客份額，資金只來自交易流量，絕不來自新存入的資金。"}},"router":{"term":{"en":"UCE Router","zh":"UCE 路由器"},"def":{"en":"The single service that matches demand to merchants, selects the payment rail and divides each payment among its contributors.","zh":"負責將需求配對至商戶、選擇支付通道，並將每筆付款分配給貢獻者的單一服務。"}},"fact-ledger":{"term":{"en":"Fact ledger","zh":"事實帳本"},"def":{"en":"A record in which every commitment, delivery, verification, decision and payment is a counter-signed fact.","zh":"每一項承諾、交付、驗證、決策與付款均為經雙方簽署之事實的紀錄。"}},"introducer":{"term":{"en":"Introducer","zh":"引薦人"},"def":{"en":"The account that first brought a user into the network; it earns a lifetime share of that user’s verified spend.","zh":"最初將用戶帶入網絡的帳戶；可終身分享該用戶經驗證消費的一部分。"}},"agent":{"term":{"en":"Agent","zh":"智能體"},"def":{"en":"Software that acts for one participant and is loyal to its owner, not to the platform.","zh":"代表單一參與者行事的軟件，只忠於其擁有者，而非平台。"}},"a2a":{"term":{"en":"A2A (agent to agent)","zh":"A2A（智能體對智能體）"},"def":{"en":"Agents quoting, negotiating and booking with one another directly, with each step recorded as a fact.","zh":"智能體之間直接報價、協商與預訂，每一步均紀錄為事實。"}},"mcp":{"term":{"en":"MCP","zh":"MCP"},"def":{"en":"Model Context Protocol: an open standard through which AI models discover tools, call them and read data.","zh":"模型上下文協議（Model Context Protocol）：AI 模型發現工具、調用工具及讀取數據的開放標準。"}},"api":{"term":{"en":"API","zh":"API"},"def":{"en":"Application programming interface: the published contract through which software requests data or actions.","zh":"應用程式介面：軟件據以請求數據或操作的公開契約。"}},"ota":{"term":{"en":"OTA","zh":"在線旅遊平台（OTA）"},"def":{"en":"Online travel agency: a platform that sells hotel and travel bookings in exchange for commission.","zh":"在線旅遊代理：以收取佣金方式銷售酒店及旅遊預訂的平台。"}},"stablecoin":{"term":{"en":"Stablecoin","zh":"穩定幣"},"def":{"en":"A digital token redeemable one-for-one in a fiat currency and issued under licence.","zh":"可按一比一兌換法定貨幣、並持牌發行的數碼代幣。"}},"opc":{"term":{"en":"OPC Global","zh":"歐匹賽全球聯盟（OPC Global）"},"def":{"en":"The Hong Kong alliance registered as 欧匹赛全球联盟. OPC stands not for a company form but for intellectual equality and a renewal of civilisation’s general-purpose technologies.","zh":"於香港註冊的「歐匹賽全球聯盟」。OPC 代表的不是一種公司形態，而是智力平權，以及人類文明通用技術的革新。"}}},"sections":[{"id":"cover","blocks":[{"type":"cover","eyebrow":{"en":"Manifesto 01","zh":"宣言 01"},"subtitle":{"en":"Those who create value should own a share of it, for as long as it keeps flowing.","zh":"創造價值的人，應當擁有價值的一部分；只要價值持續流動，這份所有權便持續存在。"},"byline":{"en":"TABLE AI, Hong Kong, 8 November 2026","zh":"TABLE AI　香港　2026年11月8日"},"ring":{"center":{"en":"Router","zh":"路由器"},"nodes":[{"en":"Customer","zh":"顧客"},{"en":"Merchant","zh":"商戶"},{"en":"Expert","zh":"專家"},{"en":"Facilitator","zh":"協作者"},{"en":"Introducer","zh":"引薦人"}],"caption":{"en":"Every participant holds an agent; every transaction passes through one router.","zh":"每位參與者擁有一個智能體；每筆交易經過同一個路由器。"}}}],"kind":"cover","toc":false},{"id":"mission","blocks":[{"type":"lead","text":{"en":"The internet accelerated information. The mobile internet reorganised time. The AI era changes something more fundamental: who has access to capability.","zh":"互聯網提速了資訊，移動互聯網重排了時間。AI 時代改變的，是更根本的東西：誰能擁有能力。"}},{"type":"timeline","items":[{"date":{"en":"Internet","zh":"互聯網"},"text":{"en":"Information moves faster","zh":"資訊提速"}},{"date":{"en":"Mobile internet","zh":"移動互聯網"},"text":{"en":"Time is reorganised","zh":"時間重排"}},{"date":{"en":"AI era","zh":"AI 時代"},"text":{"en":"Capability is shared: the User Centered Era","zh":"能力平權：用戶中心時代"}}]},{"type":"p","text":{"en":"The AI era is an era of intellectual equality: fair and just, and a spring for the kind-hearted and for seasoned product builders. This is the User Centered Era. It sets out to raise not only the ceiling of human capability but its average and its floor, and to make value, rather than price, the true centre of commerce.","zh":"AI 時代是智力平權的時代：公平公正，是老好人和老產品人的春天。這就是「用戶中心時代」。它要提高的不只是人類能力的上限，更是平均水準與下限；它要讓價值超越價格，成為商業真正的核心。"}},{"type":"p","text":{"en":"AI alone does not guarantee equality: whoever holds the tools tends to capture the gains. What turns AI toward equality is a rule. Every contribution is recorded, and its returns belong to those who created it.","zh":"然而 AI 本身並不保證平權：工具在誰手中，收益便流向誰。真正讓 AI 走向平權的，是一條規則：每一項貢獻都被紀錄，收益歸屬於創造價值的人。"}},{"type":"quote","text":{"en":"AI equalises capability. UCE equalises returns.","zh":"AI 讓能力平權，UCE 讓收益平權。"}}],"num":"01","title":{"en":"Every era has its mission","zh":"每個時代都有它的使命"}},{"id":"value","blocks":[{"type":"lead","text":{"en":"For two decades, platforms have organised the hospitality economy. Customers fund it, merchants carry its risk, and intermediaries keep a durable share of every transaction. TABLE AI proposes a different settlement: a User Centered Era, in which every verified contribution, whether a meal, a booking, an introduction or an hour of expert work, earns its owner a recorded and lasting share of the value it creates.","zh":"過去二十年，平台組織了整個餐飲與住宿經濟。顧客為它提供資金，商戶承擔它的風險，而中介在每一筆交易中保留持久的份額。TABLE AI 提出另一種分配方式——「用戶中心時代」：每一項經驗證的貢獻，無論是一頓飯、一次預訂、一次引薦，還是一小時的專家工作，都為貢獻者帶來有紀錄、可持續的價值份額。"}},{"type":"p","text":{"en":"China’s catering revenue reached ¥5.80 trillion in 2025. In accommodation, independent hotels pay [[ota|online travel platforms]] 15 to 30 per cent of each booking, and chains 8 to 15 per cent. AI [[agent|agents]] have not lowered this cost: in August 2026 a leading AI assistant began charging hotels 12 per cent on the orders it refers.","zh":"2025年，中國餐飲收入達人民幣5.80萬億元。在住宿領域，單體酒店向[[ota|在線旅遊平台]]支付每筆訂單15%至30%的佣金，連鎖酒店則為8%至15%。AI [[agent|智能體]]並未降低這項成本：2026年8月，一款領先的 AI 助手開始就其轉介的酒店訂單向商戶收取12%的費用。"}},{"type":"p","text":{"en":"Loyalty, meanwhile, has become one of the most valuable assets in commerce, for its owners. In 2020 United Airlines valued its MileagePlus programme at $21.9 billion and borrowed against it. The miles came from members’ spending; the asset belonged to the airline.","zh":"與此同時，忠誠計劃已成為商業中最有價值的資產之一——但只屬於其擁有者。2020年，聯合航空將其 MileagePlus 計劃估值為219億美元，並以此抵押借款。里數源自會員的消費，資產卻屬於航空公司。"}},{"type":"stats","items":[{"value":{"en":"¥5.80T","zh":"5.80萬億"},"label":{"en":"China catering revenue, 2025 (RMB)","zh":"中國餐飲收入，2025年（人民幣）"}},{"value":{"en":"15–30%","zh":"15–30%"},"label":{"en":"Commission paid by independent hotels to online travel platforms","zh":"單體酒店支付予在線旅遊平台的佣金"}},{"value":{"en":"12%","zh":"12%"},"label":{"en":"Fee on AI-assistant hotel referrals, from August 2026","zh":"AI 助手轉介酒店訂單收費，2026年8月起"},"key":true},{"value":{"en":"$21.9B","zh":"219億美元"},"label":{"en":"Value placed on one airline loyalty programme, 2020","zh":"一項航空忠誠計劃的估值，2020年"}}]}],"num":"02","title":{"en":"Value created, value kept","zh":"創造的價值，保留的價值"}},{"id":"principles","blocks":[{"type":"principles","items":[{"title":{"en":"Spend is capital.","zh":"消費即資本。"},"text":{"en":"Every verified purchase earns the customer a lasting, cash-backed claim on the network it helps fund.","zh":"每一筆經驗證的消費，都為顧客帶來一份對其所支持網絡的持久、有現金支持的權益。"}},{"title":{"en":"Contribution is recorded, not claimed.","zh":"貢獻以紀錄為準，而非以聲稱為準。"},"text":{"en":"Every hour, introduction, result and payment is a counter-signed fact in the [[fact-ledger|fact ledger]]. No one is paid on assertion.","zh":"每一小時、每一次引薦、每一項成果與每一筆付款，均為[[fact-ledger|事實帳本]]中經雙方簽署的事實；任何報酬都不基於單方面的說法。"}},{"title":{"en":"Every participant has an agent that serves its owner.","zh":"每位參與者都擁有為其服務的智能體。"},"text":{"en":"Customers, merchants, experts and facilitators each hold an [[agent]] loyal to them, never to the platform. Ranking is never for sale.","zh":"顧客、商戶、專家與協作者各自擁有只忠於自己、而非忠於平台的[[agent|智能體]]；排名永不出售。"}},{"title":{"en":"Transactions settle at the speed of the network.","zh":"交易以網絡的速度結算。"},"text":{"en":"One [[router]] clears and divides every payment instantly; money moves in bulk, at low cost, behind the scenes.","zh":"一個[[router|路由器]]即時清算並分配每一筆付款；資金在後台以批量、低成本的方式流轉。"}},{"title":{"en":"Help comes first.","zh":"幫助優先。"},"text":{"en":"Those who need education and support receive it from the first day; those who provide it are rewarded in ownership when cash is scarce.","zh":"需要教育與支援的人，從第一天起即可獲得；提供幫助的人，在現金不足時以所有權獲得回報。"}},{"title":{"en":"Ownership is earned, never sold.","zh":"所有權只能賺取，永不出售。"},"text":{"en":"Shares arise only from verified consumption, delivery or teaching, never from deposits or recruitment.","zh":"份額只來自經驗證的消費、交付或教學，絕不來自存款或招募。"}},{"title":{"en":"Local law, global rights.","zh":"本地合規，全球權益。"},"text":{"en":"Each jurisdiction receives the legal form it permits; the rights recorded on the ledger are the same everywhere.","zh":"每個司法管轄區採用其允許的法律形式；帳本上紀錄的權益在各地一致。"}}]}],"num":"03","title":{"en":"Seven principles","zh":"七項原則"}},{"id":"commission","blocks":[{"type":"p","text":{"en":"Under the proposed alliance model, a merchant pays once at market rates to acquire a customer, and markedly less to keep them. The commission is then divided among the people who caused the transaction, including the [[introducer|original introducer]].","zh":"在擬議的聯盟模式下，商戶以市場價格支付一次費用以獲取顧客，其後留住顧客的成本明顯較低。佣金隨後分配給促成這筆交易的人，包括[[introducer|原始引薦人]]。"}},{"type":"stacked","title":{"en":"Division of a 12% first-booking commission","zh":"首次預訂12%佣金的分配"},"subtitle":{"en":"Percentage points of the booking value, illustrative","zh":"佔訂單金額的百分點（示意）"},"note":{"en":"Repeat direct bookings carry 7.5%; the booking-agent share is waived.","zh":"回頭客直接預訂的費率為7.5%，免除預訂智能體份額。"},"segments":[{"label":{"en":"Booking agent or creator","zh":"預訂智能體或創作者"},"value":4,"tone":"deep"},{"label":{"en":"Customer rebate","zh":"顧客回饋"},"value":3,"tone":"gold"},{"label":{"en":"Shared pool for lasting customer shares","zh":"共享池（顧客持久份額）"},"value":2.4,"tone":"slate"},{"label":{"en":"Original introducer","zh":"原始引薦人"},"value":2,"tone":"steel"},{"label":{"en":"Platform","zh":"平台"},"value":0.6,"tone":"light"}]},{"type":"ranges","title":{"en":"Commission on a hotel booking, by channel","zh":"各渠道酒店預訂佣金"},"subtitle":{"en":"Per cent of booking value","zh":"佔訂單金額百分比"},"note":{"en":"UCE rates are proposed and subject to pilot. In the UCE model, about half of every commission returns to customers and introducers.","zh":"UCE 費率為擬議數字，有待試點驗證。在 UCE 模式下，每筆佣金約一半回到顧客與引薦人手中。"},"max":30,"ticks":[0,10,20,30],"rows":[{"label":{"en":"Independent hotel via OTA","zh":"單體酒店（在線旅遊平台）"},"low":15,"high":30},{"label":{"en":"Chain hotel via OTA","zh":"連鎖酒店（在線旅遊平台）"},"low":8,"high":15},{"label":{"en":"AI assistant referral","zh":"AI 助手轉介"},"low":12,"high":12},{"label":{"en":"Short-video platform","zh":"短視頻平台"},"low":8,"high":8},{"label":{"en":"UCE alliance, first booking","zh":"UCE 聯盟，首次預訂"},"low":12,"high":12,"tone":"deep"},{"label":{"en":"UCE alliance, repeat booking","zh":"UCE 聯盟，回頭客預訂"},"low":7.5,"high":7.5,"tone":"gold"}]},{"type":"p","text":{"en":"The shared pool funds a perpetual, non-transferable customer share, the [[everstake]], paid only from transaction flow and never from new money.","zh":"共享池為顧客提供永久、不可轉讓的份額——[[everstake|恆久權益]]——其資金只來自交易流量，絕不來自新資金。"}}],"num":"04","title":{"en":"Where a booking’s commission goes","zh":"一筆預訂佣金的去向"}},{"id":"stack","blocks":[{"type":"p","text":{"en":"Two components turn the model into infrastructure. Every participant receives an [[agent]], and every transaction passes through one [[router]] that matches, clears and divides it.","zh":"兩個組件令此模式成為基礎設施：每位參與者都擁有一個[[agent|智能體]]；每筆交易都經過同一個[[router|路由器]]，完成配對、清算與分配。"}},{"type":"layers","rows":[{"title":{"en":"Agents","zh":"智能體"},"items":[{"en":"Customer","zh":"顧客"},{"en":"Merchant","zh":"商戶"},{"en":"Expert","zh":"專家"},{"en":"Facilitator","zh":"協作者"},{"en":"Integrity","zh":"誠信"}]},{"title":{"en":"UCE Router","zh":"UCE 路由器"},"items":[{"en":"Demand routing","zh":"需求路由"},{"en":"Payment routing","zh":"支付路由"},{"en":"Value routing","zh":"價值路由"}],"dark":true},{"title":{"en":"Fact ledger","zh":"事實帳本"},"items":[{"en":"Commitment","zh":"承諾"},{"en":"Delivery","zh":"交付"},{"en":"Verification","zh":"驗證"},{"en":"Decision","zh":"決策"},{"en":"Payment","zh":"付款"}]},{"title":{"en":"Pools","zh":"資金池"},"items":[{"en":"Mainland: RMB credits","zh":"內地：人民幣積分"},{"en":"Hong Kong and global","zh":"香港及全球"}]}]},{"type":"p","text":{"en":"Agents connect through open protocols such as [[mcp|MCP]] and published [[api|APIs]], and negotiate [[a2a|agent to agent]]; outside agents can join as booking contributors.","zh":"智能體透過 [[mcp|MCP]] 等開放協議及公開的 [[api|API]] 接入，並以[[a2a|智能體對智能體]]的方式直接協商；外部智能體亦可作為預訂貢獻者加入。"}},{"type":"p","text":{"en":"On each transaction the router matches a customer’s intent to merchants by fit, price and reliability; selects the lowest-cost compliant payment rail; and applies the division instantly on the [[fact-ledger|fact ledger]]. Settlement between institutions runs once a day, in bulk, and later in licensed [[stablecoin|stablecoins]] for the Hong Kong and global pools. The design target is a routing decision in under 100 milliseconds.","zh":"路由器在每筆交易中執行三項任務：按匹配度、價格與信譽，將顧客意圖配對至商戶；選擇成本最低且合規的支付通道；並在[[fact-ledger|事實帳本]]上即時完成分配。機構之間的結算每日批量進行一次，香港及全球資金池其後可採用持牌[[stablecoin|穩定幣]]。設計目標為每項路由決策少於100毫秒。"}}],"num":"05","title":{"en":"An agent for every participant, a router for every transaction","zh":"每位參與者一個智能體，每筆交易一個路由器"}},{"id":"help","blocks":[{"type":"p","text":{"en":"The first phase is not a consumer product. It is an expert and agent help network: experts and AI agents solve real operating problems for owners and learners, and every hour and result is written to the ledger. When a seeker cannot pay, an expert may take the case for a share rather than a fee. When a seeker implements the plan and reports results, the seeker earns a share too, because proof is the network’s most valuable asset.","zh":"第一階段並非消費者產品，而是一個專家與智能體協作的幫助網絡：專家與 AI 智能體為經營者與學習者解決實際經營問題，每一小時、每一項成果都寫入帳本。當求助者無力支付時，專家可以份額代替費用承接個案。當求助者落實方案並回報成果時，求助者同樣獲得份額，因為證據是網絡最有價值的資產。"}},{"type":"steps","items":[{"en":"Problem brought by an owner or learner","zh":"經營者或學習者提出問題"},{"en":"Plan agreed with an expert","zh":"與專家確定方案"},{"en":"Agent-first execution, expert on exceptions","zh":"智能體優先執行，專家處理例外"},{"en":"Result verified and written to the ledger","zh":"成果經驗證並寫入帳本"},{"en":"Settlement to every contributor","zh":"向每一位貢獻者結算"}]},{"type":"p","text":{"en":"The approach extends the method TABLE AI’s Expert-AI Studio has proven in restaurants through 侍天 Tiansight, delivered with the OPC Global expert network.","zh":"這一方法延伸自 TABLE AI 專家 AI 工作室經侍天 Tiansight 在餐飲業驗證的方法，並由 OPC Global 專家網絡共同交付。"}}],"num":"06","title":{"en":"Help comes first","zh":"幫助優先"}},{"id":"opc","blocks":[{"type":"p","text":{"en":"OPC should not be read as “one-person company”. Its essence has little to do with company form; it concerns intellectual equality, and a renewal of the general-purpose technologies of human civilisation.","zh":"OPC 不應被理解為「一人公司」。它的本質與公司形態無關，而關乎智力平權，以及人類文明通用技術的一次革新。"}},{"type":"p","text":{"en":"When [[opc|OPC Global]] was registered in Hong Kong, its first proposed name, One Person Company Global Alliance, was rejected: an organisation cannot be both a company and an alliance. It was renamed 欧匹赛全球联盟. In hindsight, the refusal helped.","zh":"在香港註冊 [[opc|OPC Global]] 時，最初的名稱「一人公司全球聯盟」被駁回：一個組織不能既是公司，又是聯盟。於是改名為「歐匹賽全球聯盟」。回頭看，這是好事。"}},{"type":"stats","items":[{"value":{"en":"IP","zh":"IP"},"label":{"en":"Once meant only intellectual property; now the strongest symbol of monetisation","zh":"最初只是「知識產權」，如今成為最強的變現符號"}},{"value":{"en":"OPC","zh":"OPC"},"label":{"en":"Once read as one-person company; now a label for intellectual equality","zh":"曾被讀作「一人公司」，將成為智力平權的新標籤"},"key":true}]},{"type":"p","text":{"en":"OPC will travel the same way, from a literal abbreviation to a label carried by everyone who believes in and practises fairness, justice and value first.","zh":"OPC 也將走上同樣的路：從字面縮寫，成為每一位信仰並踐行公平公正、價值優先的朋友的新標籤。"}},{"type":"quote","text":{"en":"Use AI well, and be free at last.","zh":"善用 AI，終獲自由。"}}],"num":"07","title":{"en":"OPC: a new label","zh":"OPC：一個新標籤"}},{"id":"next","blocks":[{"type":"p","text":{"en":"The User Centered Era is a design under research, not a finished product. Three questions decide whether it proceeds: whether a rebate and a lasting share change how people dine and travel; whether merchants accept the channel rates; and whether counsel in Hong Kong and the mainland confirm the structure.","zh":"「用戶中心時代」是一項研究中的設計，而非成品。三個問題決定其能否推進：回饋與持久份額是否改變人們用餐與出行的行為；商戶是否接受渠道費率；以及香港與內地的法律顧問是否確認其架構。"}},{"type":"timeline","items":[{"date":{"en":"December 2026","zh":"2026年12月"},"text":{"en":"Legal opinions and merchant interviews","zh":"法律意見與商戶訪談"}},{"date":{"en":"February 2027","zh":"2027年2月"},"text":{"en":"Demand test and first help-network cases reviewed","zh":"需求測試及首批幫助網絡個案檢視"}},{"date":{"en":"April 2027","zh":"2027年4月"},"text":{"en":"Alliance pilot with 30 to 50 merchants reviewed","zh":"30至50家商戶聯盟試點檢視"}}]},{"type":"p","text":{"en":"TABLE AI invites experts, merchants and facilitators who share this view to join the first cohort. Contact hi@tableai.ai.","zh":"TABLE AI 誠邀認同此理念的專家、商戶與協作者加入首批計劃。聯絡：hi@tableai.ai"}},{"type":"quote","text":{"en":"We believe the agent era should return value to the people who create it.","zh":"我們相信，智能體時代應當把價值還給創造價值的人。"}}],"num":"08","title":{"en":"What happens next","zh":"下一步"}},{"id":"ending","blocks":[{"type":"ending","line":{"en":"Either on the table, or on the menu.","zh":"不在桌上，便在菜單上。"},"formula":[{"en":"∀x : ¬Table(x) → Menu(x)","zh":"∀x：¬桌上(x) → 菜單上(x)"},{"en":"≡  Table(x) ∨ Menu(x)","zh":"≡  桌上(x) ∨ 菜單上(x)"}],"caption":{"en":"In every economy, a participant either takes part in dividing value or is divided. The User Centered Era gives every participant a seat at the table.","zh":"在任何經濟體中，參與者要麼參與分配價值，要麼被分配。用戶中心時代讓每一位參與者都在桌上擁有一席之地。"}}],"kind":"ending","tone":"dark","tocLabel":{"en":"Either on the table, or on the menu","zh":"不在桌上，便在菜單上"}},{"id":"glossary","blocks":[{"type":"glossary"}],"title":{"en":"Glossary","zh":"詞彙表"}},{"id":"sources","blocks":[{"type":"sources","items":[{"label":{"en":"National Bureau of Statistics, 2025 catering revenue, via Beijing Business Today","zh":"國家統計局 2025年餐飲收入，北京商報"},"url":"finance.eastmoney.com/a/202601193623640618.html"},{"label":{"en":"Huxiu, hotel commission rates and Trip.com 2025 figures","zh":"虎嗅，酒店佣金率及攜程2025年數據"},"url":"huxiu.com/article/4878830.html"},{"label":{"en":"Caijing via Sina, AI-assistant hotel fee and OTA market share","zh":"《財經》（新浪轉載），AI 助手酒店收費及在線旅遊市場份額"},"url":"finance.sina.com.cn/tech/roll/2026-08-11/doc-inimyhkh5719843.shtml"},{"label":{"en":"United Airlines Holdings, Form 8-K, June 2020","zh":"聯合航空控股，Form 8-K，2020年6月"},"url":"sec.gov/Archives/edgar/data/319687"},{"label":{"en":"McKinsey forecast via Digital Commerce 360","zh":"麥肯錫預測，Digital Commerce 360 轉載"},"url":"digitalcommerce360.com/2025/10/20/mckinsey-forecast-5-trillion-agentic-commerce-sales-2030"}]},{"type":"note","text":{"en":"This manifesto describes a design under research. It is not an offer of securities, deposits or other financial products. Figures marked illustrative or proposed are working assumptions; market figures are from the sources listed.","zh":"本宣言描述一項研究中的設計，並不構成任何證券、存款或其他金融產品的要約。標示為「示意」或「擬議」的數字為工作假設；市場數據出處見所列來源。"}}],"title":{"en":"Sources","zh":"資料來源"}}]};
+const LOGO = { mark: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 698 699\" fill=\"currentColor\"><path fill-rule=\"evenodd\" d=\"M632.5 166L622.5 166L619 167.6L614.1 160.5L608.6 153L602.8 145.7L596.9 138.5L590.9 131.6L584.6 124.8L578.1 118.3L571.5 111.9L560.9 102.4L550.5 93.9L539.7 85.7L528.5 77.9L521.7 73.6L515.5 69.8L509.3 66.2L502.8 62.7L496.3 59.3L489.5 55.9L482.8 52.8L475.8 49.7L469.4 47.1L462.3 44.4L455.5 41.9L448.3 39.5L441.3 37.4L434.3 35.4L427.3 33.6L419.3 31.7L411.4 30.1L404.3 28.8L396.4 27.5L389.4 26.6L381.4 25.7L373.9 25L366.4 24.5L358.4 24.2L350.5 24.1L343.5 24.1L335.5 24.3L327.5 24.8L319.5 25.4L312.5 26.1L305 27L297.5 28.2L290.5 29.4L282.7 30.9L274.6 32.7L267.6 34.4L260.6 36.3L252.7 38.6L245.5 41L238.6 43.4L231.5 46L224.4 48.9L217.4 51.9L210.5 55L203.6 58.3L196.5 62L190 65.5L183 69.6L176.3 73.7L170.2 77.6L163.6 82L157.2 86.6L151.4 90.9L145.3 95.7L139.2 100.7L133.3 105.8L127.5 111L121.9 116.4L116.4 121.9L111 127.5L105.8 133.3L100.6 139.2L96.1 144.7L91.2 150.8L86.5 157.1L82.3 163L77.9 169.4L74 175.5L70.1 181.7L66.1 188.5L62.4 195.2L58.7 202.3L55.1 209.5L51.9 216.5L48.9 223.4L46 230.5L43.3 237.6L40.7 245L38.3 252.6L36.2 259.5L34.2 266.5L32.2 274.5L30.6 281.6L29.1 289.5L27.8 296.6L26.6 304.5L25.7 311.5L24.9 319.5L24.2 327.5L23.8 334.5L23.5 342.5L23.5 350.5L23.6 358.4L23.9 366.4L24.3 373.4L25 381.4L25.9 389.3L27 397.3L28.1 404.4L29.5 412.3L31 419.4L32.8 427.2L34.8 434.9L36.8 441.9L39.1 449.4L41.6 456.9L44.3 464.3L47.1 471.4L50 478.4L53.1 485.4L56.5 492.7L59.9 499.3L75 497.5L172 188.5L173.5 187L199.5 187L201 188.5L302 510.5L287.5 514L285 510.5L251.5 403L121.5 403L87 511.5L85.5 514L71.5 514L68.6 515.1L67.3 512.9L54.5 514L51.1 515.3L49.6 512.6L43.8 501.5L38.7 490.6L33.6 478.9L29.1 467.4L26.3 459.3L23.4 450.3L20.8 441.5L18.6 433.3L16.4 424.3L14.5 415.3L12.9 406.5L11.5 397.4L10.5 389.4L9.6 381.4L9 373.4L8.5 364.4L8.2 355.5L8.2 347.5L8.3 339.5L8.7 330.5L9.3 321.5L10.1 313.5L11 305.5L12.3 296.5L13.7 288.4L15.4 279.6L17.2 271.5L19.2 263.5L21.4 255.6L23.8 247.4L26.4 239.6L29.3 231.6L32.2 223.9L35.2 216.6L38.4 209.2L42 201.5L46 193.5L49.8 186.4L53.8 179.3L57.9 172.4L62.1 165.7L66.4 159.1L70.9 152.6L76 145.6L81.2 138.8L86.1 132.7L91.2 126.7L96.8 120.4L102.1 114.6L108.1 108.6L114.1 102.6L120.4 96.8L126.7 91.2L132.7 86.2L138.9 81.2L145.7 76.1L152.6 71L159.2 66.5L166.4 61.8L173.2 57.6L180.2 53.5L187.3 49.6L194.4 45.9L201.6 42.3L209.3 38.7L216.7 35.5L224.6 32.3L232 29.5L239.4 26.9L247.5 24.2L255.4 21.9L263 19.8L271 17.8L279.5 15.9L287.5 14.4L295.5 13L303.4 11.8L312 10.8L320.5 10L328.5 9.4L337.5 9L345.5 8.8L353.5 8.8L361.5 9L369.4 9.4L377.5 9.9L385.9 10.8L394.3 11.8L402.5 13L410.4 14.3L418.5 15.9L426.3 17.6L434.3 19.6L442.5 21.8L450.4 24.2L457.9 26.6L465.4 29.2L473.4 32.2L481.3 35.4L488.6 38.6L496.3 42.2L503.5 45.8L510.7 49.5L517.8 53.4L524.7 57.5L531.6 61.7L538.8 66.4L545.3 70.9L551.7 75.6L558.6 80.8L565.3 86.1L571.2 91.1L577.6 96.7L583.4 102L589.5 108L594.9 113.5L600.7 119.7L605.9 125.5L611 131.5L616.4 138.1L621.2 144.3L626.3 151.2L630.8 157.7L635.4 164.7ZM630.4 185.8L631.9 188.4L644.5 187L647.9 185.6L648.9 187.5L654.7 198.6L659.8 209.5L664.9 221.5L669.4 233L672.5 241.9L675.2 250.4L677.6 258.6L679.9 267.5L682 276.4L683.9 285.5L685.5 294.5L686.8 303.5L687.8 311.5L688.6 319.5L689.2 327.5L689.7 336.5L689.9 345.5L689.9 353.5L689.8 361.4L689.3 370.4L688.7 379.4L687.9 387.4L686.9 395.4L685.5 404.4L684.1 412.5L682.3 421.3L680.5 429.3L678.5 437.3L676.2 445.5L673.8 453.4L671.1 461.5L668.4 468.9L665.3 476.9L662.1 484.5L659 491.5L655.5 499L651.8 506.4L648 513.5L644 520.5L639.9 527.4L635.4 534.7L631 541.3L626.4 547.8L621.4 554.8L616.6 560.9L611.2 567.6L606.1 573.6L600.4 579.9L594.6 586.1L589.2 591.7L583 597.6L576.8 603.3L570.4 608.9L564.4 614L557.7 619.3L551.4 624L544.5 629L537.8 633.5L530.6 638.2L523.7 642.4L516.7 646.5L509.7 650.3L502.5 654.1L495.1 657.7L487.5 661.2L479.9 664.4L472.6 667.4L464.9 670.3L457.4 672.9L449.3 675.5L441.4 677.8L433.5 679.9L425.4 681.9L417.4 683.6L409.3 685.2L401.4 686.5L393.4 687.7L385.4 688.6L377.4 689.4L369.4 689.9L360.4 690.4L352.5 690.5L344.5 690.5L336.5 690.3L327.5 689.9L319.5 689.3L311.5 688.5L303.5 687.5L295.6 686.3L287.5 684.9L279.6 683.4L271.5 681.6L263.5 679.7L255.6 677.5L247.4 675.1L239.6 672.5L231.6 669.7L224.5 667L217.4 664.1L209.6 660.7L202.3 657.3L194.8 653.7L187.5 649.8L180.5 645.9L173.1 641.6L166.2 637.4L159 632.7L152.4 628.1L145.4 623L139.2 618.3L132.5 613L126.5 607.9L120.7 602.8L114.5 597L108.4 591.1L102.9 585.5L97.1 579.3L91.9 573.4L86.4 566.9L81.5 560.8L76.3 554.1L71.6 547.7L67.1 541.2L62.5 534.2L76.5 534L79.6 532.5L84.7 539.7L90.1 547.1L95.5 553.9L101.3 561L107 567.4L113.2 574.2L119.7 580.7L126.3 587.1L136.9 596.6L147.3 605.2L158.1 613.4L169.9 621.5L176 625.4L182.3 629.3L188.5 632.9L195.5 636.8L202.3 640.3L208.9 643.6L215.6 646.6L222.6 649.7L229.6 652.6L236.4 655.1L243.5 657.7L250.5 660L257.7 662.2L264.7 664.1L271.7 665.9L279.5 667.7L286.6 669.2L294.7 670.7L302.6 671.9L309.6 672.9L317.6 673.7L325.5 674.4L332.5 674.8L340.5 675.1L348.5 675.3L355.4 675.2L363.4 674.9L371.4 674.5L379.4 673.8L386.4 673.1L393.4 672.2L401.3 671L408.8 669.7L416.3 668.2L424.3 666.4L431.4 664.7L438.4 662.8L446.3 660.4L453.5 658.1L460.3 655.6L467.5 653L474.5 650.1L481.5 647.1L488.4 643.9L495.3 640.6L501.6 637.3L508.3 633.7L515.1 629.7L521.4 625.9L528.1 621.6L534.6 617.2L541.1 612.6L547.3 607.9L553 603.5L559 598.5L564.9 593.4L570.2 588.7L575.8 583.3L581.3 577.8L586.7 572.2L592 566.5L597.1 560.6L602.1 554.6L606.6 548.9L611.3 542.7L615.9 536.3L620.3 529.7L624.3 523.7L628.4 516.9L632.1 510.6L635.7 504.1L639.4 496.9L642.7 490.3L645.9 483.4L649 476.5L652.1 468.8L654.9 461.4L657.4 454.3L659.7 447.4L661.9 439.8L664 432.5L665.7 425.4L667.3 418.3L669 410.3L670.4 402.4L671.6 394.4L672.5 387.4L673.3 379.4L673.9 372.4L674.3 364.4L674.6 356.4L674.7 349.5L674.6 341.5L674.3 333.5L673.8 326.5L673.2 318.5L672.3 310.5L671.2 302.6L670 294.6L668.7 287.5L667 279.7L665.4 272.6L663.6 265.5L661.4 257.6L659.2 250.4L656.9 243.5L654.2 236.1L651.5 229L648.6 221.9L645.5 214.9L642 207.5L638.7 200.8L624.5 202L623 204.5L527 511.5L524.5 514L499.5 514L498 512.5L396 188.5L407.5 186L411.5 186L413 188.5L447.5 297L577.5 297L612 188.5L627.5 187ZM323.5 187L338 187.5L338 512.5L336.5 514L322 512.5L322 202.5ZM360.5 187L376 187.5L376 512.5L374.5 514L360 512.5ZM184.5 202L126 387.5L246.5 388L193 214.5L189 202.5ZM452.5 312L455 325.5L507 491.5L509 497.5L513.5 498L573 312.5Z\"></path></svg>", lockup: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 2440.3 699\" fill=\"currentColor\"><path fill-rule=\"evenodd\" d=\"M632.5 166L622.5 166L619 167.6L614.1 160.5L608.6 153L602.8 145.7L596.9 138.5L590.9 131.6L584.6 124.8L578.1 118.3L571.5 111.9L560.9 102.4L550.5 93.9L539.7 85.7L528.5 77.9L521.7 73.6L515.5 69.8L509.3 66.2L502.8 62.7L496.3 59.3L489.5 55.9L482.8 52.8L475.8 49.7L469.4 47.1L462.3 44.4L455.5 41.9L448.3 39.5L441.3 37.4L434.3 35.4L427.3 33.6L419.3 31.7L411.4 30.1L404.3 28.8L396.4 27.5L389.4 26.6L381.4 25.7L373.9 25L366.4 24.5L358.4 24.2L350.5 24.1L343.5 24.1L335.5 24.3L327.5 24.8L319.5 25.4L312.5 26.1L305 27L297.5 28.2L290.5 29.4L282.7 30.9L274.6 32.7L267.6 34.4L260.6 36.3L252.7 38.6L245.5 41L238.6 43.4L231.5 46L224.4 48.9L217.4 51.9L210.5 55L203.6 58.3L196.5 62L190 65.5L183 69.6L176.3 73.7L170.2 77.6L163.6 82L157.2 86.6L151.4 90.9L145.3 95.7L139.2 100.7L133.3 105.8L127.5 111L121.9 116.4L116.4 121.9L111 127.5L105.8 133.3L100.6 139.2L96.1 144.7L91.2 150.8L86.5 157.1L82.3 163L77.9 169.4L74 175.5L70.1 181.7L66.1 188.5L62.4 195.2L58.7 202.3L55.1 209.5L51.9 216.5L48.9 223.4L46 230.5L43.3 237.6L40.7 245L38.3 252.6L36.2 259.5L34.2 266.5L32.2 274.5L30.6 281.6L29.1 289.5L27.8 296.6L26.6 304.5L25.7 311.5L24.9 319.5L24.2 327.5L23.8 334.5L23.5 342.5L23.5 350.5L23.6 358.4L23.9 366.4L24.3 373.4L25 381.4L25.9 389.3L27 397.3L28.1 404.4L29.5 412.3L31 419.4L32.8 427.2L34.8 434.9L36.8 441.9L39.1 449.4L41.6 456.9L44.3 464.3L47.1 471.4L50 478.4L53.1 485.4L56.5 492.7L59.9 499.3L75 497.5L172 188.5L173.5 187L199.5 187L201 188.5L302 510.5L287.5 514L285 510.5L251.5 403L121.5 403L87 511.5L85.5 514L71.5 514L68.6 515.1L67.3 512.9L54.5 514L51.1 515.3L49.6 512.6L43.8 501.5L38.7 490.6L33.6 478.9L29.1 467.4L26.3 459.3L23.4 450.3L20.8 441.5L18.6 433.3L16.4 424.3L14.5 415.3L12.9 406.5L11.5 397.4L10.5 389.4L9.6 381.4L9 373.4L8.5 364.4L8.2 355.5L8.2 347.5L8.3 339.5L8.7 330.5L9.3 321.5L10.1 313.5L11 305.5L12.3 296.5L13.7 288.4L15.4 279.6L17.2 271.5L19.2 263.5L21.4 255.6L23.8 247.4L26.4 239.6L29.3 231.6L32.2 223.9L35.2 216.6L38.4 209.2L42 201.5L46 193.5L49.8 186.4L53.8 179.3L57.9 172.4L62.1 165.7L66.4 159.1L70.9 152.6L76 145.6L81.2 138.8L86.1 132.7L91.2 126.7L96.8 120.4L102.1 114.6L108.1 108.6L114.1 102.6L120.4 96.8L126.7 91.2L132.7 86.2L138.9 81.2L145.7 76.1L152.6 71L159.2 66.5L166.4 61.8L173.2 57.6L180.2 53.5L187.3 49.6L194.4 45.9L201.6 42.3L209.3 38.7L216.7 35.5L224.6 32.3L232 29.5L239.4 26.9L247.5 24.2L255.4 21.9L263 19.8L271 17.8L279.5 15.9L287.5 14.4L295.5 13L303.4 11.8L312 10.8L320.5 10L328.5 9.4L337.5 9L345.5 8.8L353.5 8.8L361.5 9L369.4 9.4L377.5 9.9L385.9 10.8L394.3 11.8L402.5 13L410.4 14.3L418.5 15.9L426.3 17.6L434.3 19.6L442.5 21.8L450.4 24.2L457.9 26.6L465.4 29.2L473.4 32.2L481.3 35.4L488.6 38.6L496.3 42.2L503.5 45.8L510.7 49.5L517.8 53.4L524.7 57.5L531.6 61.7L538.8 66.4L545.3 70.9L551.7 75.6L558.6 80.8L565.3 86.1L571.2 91.1L577.6 96.7L583.4 102L589.5 108L594.9 113.5L600.7 119.7L605.9 125.5L611 131.5L616.4 138.1L621.2 144.3L626.3 151.2L630.8 157.7L635.4 164.7ZM630.4 185.8L631.9 188.4L644.5 187L647.9 185.6L648.9 187.5L654.7 198.6L659.8 209.5L664.9 221.5L669.4 233L672.5 241.9L675.2 250.4L677.6 258.6L679.9 267.5L682 276.4L683.9 285.5L685.5 294.5L686.8 303.5L687.8 311.5L688.6 319.5L689.2 327.5L689.7 336.5L689.9 345.5L689.9 353.5L689.8 361.4L689.3 370.4L688.7 379.4L687.9 387.4L686.9 395.4L685.5 404.4L684.1 412.5L682.3 421.3L680.5 429.3L678.5 437.3L676.2 445.5L673.8 453.4L671.1 461.5L668.4 468.9L665.3 476.9L662.1 484.5L659 491.5L655.5 499L651.8 506.4L648 513.5L644 520.5L639.9 527.4L635.4 534.7L631 541.3L626.4 547.8L621.4 554.8L616.6 560.9L611.2 567.6L606.1 573.6L600.4 579.9L594.6 586.1L589.2 591.7L583 597.6L576.8 603.3L570.4 608.9L564.4 614L557.7 619.3L551.4 624L544.5 629L537.8 633.5L530.6 638.2L523.7 642.4L516.7 646.5L509.7 650.3L502.5 654.1L495.1 657.7L487.5 661.2L479.9 664.4L472.6 667.4L464.9 670.3L457.4 672.9L449.3 675.5L441.4 677.8L433.5 679.9L425.4 681.9L417.4 683.6L409.3 685.2L401.4 686.5L393.4 687.7L385.4 688.6L377.4 689.4L369.4 689.9L360.4 690.4L352.5 690.5L344.5 690.5L336.5 690.3L327.5 689.9L319.5 689.3L311.5 688.5L303.5 687.5L295.6 686.3L287.5 684.9L279.6 683.4L271.5 681.6L263.5 679.7L255.6 677.5L247.4 675.1L239.6 672.5L231.6 669.7L224.5 667L217.4 664.1L209.6 660.7L202.3 657.3L194.8 653.7L187.5 649.8L180.5 645.9L173.1 641.6L166.2 637.4L159 632.7L152.4 628.1L145.4 623L139.2 618.3L132.5 613L126.5 607.9L120.7 602.8L114.5 597L108.4 591.1L102.9 585.5L97.1 579.3L91.9 573.4L86.4 566.9L81.5 560.8L76.3 554.1L71.6 547.7L67.1 541.2L62.5 534.2L76.5 534L79.6 532.5L84.7 539.7L90.1 547.1L95.5 553.9L101.3 561L107 567.4L113.2 574.2L119.7 580.7L126.3 587.1L136.9 596.6L147.3 605.2L158.1 613.4L169.9 621.5L176 625.4L182.3 629.3L188.5 632.9L195.5 636.8L202.3 640.3L208.9 643.6L215.6 646.6L222.6 649.7L229.6 652.6L236.4 655.1L243.5 657.7L250.5 660L257.7 662.2L264.7 664.1L271.7 665.9L279.5 667.7L286.6 669.2L294.7 670.7L302.6 671.9L309.6 672.9L317.6 673.7L325.5 674.4L332.5 674.8L340.5 675.1L348.5 675.3L355.4 675.2L363.4 674.9L371.4 674.5L379.4 673.8L386.4 673.1L393.4 672.2L401.3 671L408.8 669.7L416.3 668.2L424.3 666.4L431.4 664.7L438.4 662.8L446.3 660.4L453.5 658.1L460.3 655.6L467.5 653L474.5 650.1L481.5 647.1L488.4 643.9L495.3 640.6L501.6 637.3L508.3 633.7L515.1 629.7L521.4 625.9L528.1 621.6L534.6 617.2L541.1 612.6L547.3 607.9L553 603.5L559 598.5L564.9 593.4L570.2 588.7L575.8 583.3L581.3 577.8L586.7 572.2L592 566.5L597.1 560.6L602.1 554.6L606.6 548.9L611.3 542.7L615.9 536.3L620.3 529.7L624.3 523.7L628.4 516.9L632.1 510.6L635.7 504.1L639.4 496.9L642.7 490.3L645.9 483.4L649 476.5L652.1 468.8L654.9 461.4L657.4 454.3L659.7 447.4L661.9 439.8L664 432.5L665.7 425.4L667.3 418.3L669 410.3L670.4 402.4L671.6 394.4L672.5 387.4L673.3 379.4L673.9 372.4L674.3 364.4L674.6 356.4L674.7 349.5L674.6 341.5L674.3 333.5L673.8 326.5L673.2 318.5L672.3 310.5L671.2 302.6L670 294.6L668.7 287.5L667 279.7L665.4 272.6L663.6 265.5L661.4 257.6L659.2 250.4L656.9 243.5L654.2 236.1L651.5 229L648.6 221.9L645.5 214.9L642 207.5L638.7 200.8L624.5 202L623 204.5L527 511.5L524.5 514L499.5 514L498 512.5L396 188.5L407.5 186L411.5 186L413 188.5L447.5 297L577.5 297L612 188.5L627.5 187ZM323.5 187L338 187.5L338 512.5L336.5 514L322 512.5L322 202.5ZM360.5 187L376 187.5L376 512.5L374.5 514L360 512.5ZM184.5 202L126 387.5L246.5 388L193 214.5L189 202.5ZM452.5 312L455 325.5L507 491.5L509 497.5L513.5 498L573 312.5Z\"></path><path fill-rule=\"evenodd\" transform=\"translate(907.7 230.6) scale(0.5)\" d=\"M0.5 0L348 0.5L347.5 51L201 51.5L200.5 432L147 431.5L147 51.5L0.5 51ZM559.5 0L632.5 0L634 1.5L634 3.5L635 4.5L635 6.5L636 7.5L636 9.5L637 10.5L637 12.5L638 13.5L638 15.5L639 16.5L639 18.5L640 19.5L640 21.5L641 22.5L641 24.5L642 25.5L642 27.5L643 28.5L643 30.5L644 31.5L644 33.5L645 34.5L645 36.5L646 37.5L646 39.5L647 40.5L647 42.5L648 43.5L648 45.5L649 46.5L649 48.5L650 49.5L650 51.5L651 52.5L651 54.5L652 55.5L652 57.5L653 58.5L653 60.5L654 61.5L654 63.5L655 64.5L655 66.5L656 67.5L656 69.5L657 70.5L657 72.5L658 73.5L658 75.5L659 76.5L659 78.5L660 79.5L660 81.5L661 82.5L661 84.5L662 85.5L662 87.5L663 88.5L663 90.5L664 91.5L664 93.5L665 94.5L665 96.5L666 97.5L666 99.5L667 100.5L667 102.5L668 103.5L668 105.5L669 106.5L669 108.5L670 109.5L670 111.5L671 112.5L671 114.5L672 115.5L672 117.5L673 118.5L673 120.5L674 121.5L674 123.5L675 124.5L675 126.5L676 127.5L676 129.5L677 130.5L677 132.5L678 133.5L678 135.5L679 136.5L679 138.5L680 139.5L680 141.5L681 142.5L681 144.5L682 145.5L682 147.5L683 148.5L683 150.5L684 151.5L684 153.5L685 154.5L685 156.5L686 157.5L686 159.5L687 160.5L687 162.5L688 163.5L688 165.5L689 166.5L689 168.5L690 169.5L690 171.5L691 172.5L691 174.5L692 175.5L692 177.5L693 178.5L693 180.5L694 181.5L694 183.5L695 184.5L695 186.5L696 187.5L696 189.5L697 190.5L697 192.5L698 193.5L698 195.5L699 196.5L699 198.5L700 199.5L700 201.5L701 202.5L712 237.5L714 240.5L714 242.5L715 243.5L715 245.5L716 246.5L716 248.5L717 249.5L717 251.5L718 252.5L718 254.5L719 255.5L719 257.5L720 258.5L720 260.5L721 261.5L721 263.5L722 264.5L722 266.5L723 267.5L723 269.5L724 270.5L724 272.5L725 273.5L725 275.5L726 276.5L726 278.5L727 279.5L727 281.5L728 282.5L728 284.5L729 285.5L729 287.5L730 288.5L730 290.5L731 291.5L731 293.5L732 294.5L732 296.5L733 297.5L733 299.5L734 300.5L734 302.5L735 303.5L735 305.5L736 306.5L736 308.5L737 309.5L737 311.5L738 312.5L738 314.5L739 315.5L739 317.5L740 318.5L740 320.5L741 321.5L741 323.5L742 324.5L742 326.5L743 327.5L743 329.5L744 330.5L744 332.5L745 333.5L745 335.5L746 336.5L746 338.5L747 339.5L747 341.5L748 342.5L748 344.5L749 345.5L749 347.5L750 348.5L750 350.5L751 351.5L751 353.5L752 354.5L752 356.5L753 357.5L753 359.5L754 360.5L754 362.5L755 363.5L755 365.5L756 366.5L756 368.5L757 369.5L757 371.5L758 372.5L758 374.5L759 375.5L759 377.5L760 378.5L760 380.5L761 381.5L761 383.5L762 384.5L762 386.5L763 387.5L763 389.5L764 390.5L764 392.5L765 393.5L765 395.5L766 396.5L766 398.5L767 399.5L767 401.5L768 402.5L768 404.5L769 405.5L769 407.5L777 429.5L776.5 432L722 431.5L717 415.5L716 414.5L716 412.5L715 411.5L715 409.5L713 406.5L713 404.5L712 403.5L712 401.5L711 400.5L711 398.5L710 397.5L710 395.5L709 394.5L709 392.5L708 391.5L708 389.5L707 388.5L707 386.5L706 385.5L706 383.5L705 382.5L705 380.5L704 379.5L704 377.5L703 376.5L703 374.5L702 373.5L702 371.5L701 370.5L701 368.5L700 367.5L689 332.5L687.5 331L503.5 331L502 333.5L493 362.5L491 365.5L491 367.5L490 368.5L490 370.5L489 371.5L489 373.5L488 374.5L488 376.5L487 377.5L487 379.5L486 380.5L486 382.5L485 383.5L485 385.5L484 386.5L484 388.5L483 389.5L483 391.5L482 392.5L482 394.5L481 395.5L470 430.5L468.5 432L414 431.5L415 430.5L415 428.5L416 427.5L416 425.5L417 424.5L417 422.5L418 421.5L418 419.5L419 418.5L419 416.5L420 415.5L420 413.5L421 412.5L421 410.5L422 409.5L433 374.5L435 371.5L435 369.5L436 368.5L436 366.5L437 365.5L437 363.5L438 362.5L438 360.5L439 359.5L439 357.5L440 356.5L440 354.5L441 353.5L441 351.5L442 350.5L442 348.5L443 347.5L443 345.5L444 344.5L444 342.5L445 341.5L445 339.5L446 338.5L446 336.5L447 335.5L447 333.5L448 332.5L448 330.5L449 329.5L449 327.5L450 326.5L450 324.5L451 323.5L451 321.5L452 320.5L452 318.5L453 317.5L453 315.5L454 314.5L454 312.5L455 311.5L455 309.5L456 308.5L456 306.5L457 305.5L457 303.5L458 302.5L458 300.5L459 299.5L459 297.5L460 296.5L460 294.5L461 293.5L461 291.5L462 290.5L462 288.5L463 287.5L463 285.5L464 284.5L464 282.5L465 281.5L465 279.5L466 278.5L466 276.5L467 275.5L467 273.5L468 272.5L468 270.5L469 269.5L469 267.5L470 266.5L470 264.5L471 263.5L471 261.5L472 260.5L472 258.5L473 257.5L473 255.5L474 254.5L474 252.5L475 251.5L475 249.5L476 248.5L476 246.5L477 245.5L477 243.5L478 242.5L478 240.5L479 239.5L479 237.5L480 236.5L480 234.5L481 233.5L481 231.5L482 230.5L482 228.5L483 227.5L483 225.5L484 224.5L484 222.5L485 221.5L485 219.5L486 218.5L486 216.5L487 215.5L487 213.5L488 212.5L488 210.5L489 209.5L489 207.5L490 206.5L490 204.5L491 203.5L491 201.5L492 200.5L492 198.5L493 197.5L493 195.5L494 194.5L494 192.5L495 191.5L495 189.5L496 188.5L496 186.5L497 185.5L497 183.5L498 182.5L498 180.5L499 179.5L499 177.5L500 176.5L500 174.5L501 173.5L501 171.5L502 170.5L513 135.5L515 132.5L515 130.5L516 129.5L516 127.5L517 126.5L517 124.5L518 123.5L518 121.5L519 120.5L519 118.5L520 117.5L520 115.5L521 114.5L521 112.5L522 111.5L522 109.5L523 108.5L523 106.5L524 105.5L524 103.5L525 102.5L525 100.5L526 99.5L526 97.5L527 96.5L527 94.5L528 93.5L528 91.5L529 90.5L529 88.5L530 87.5L530 85.5L531 84.5L531 82.5L532 81.5L532 79.5L533 78.5L533 76.5L534 75.5L534 73.5L535 72.5L535 70.5L536 69.5L536 67.5L537 66.5L537 64.5L538 63.5L538 61.5L539 60.5L539 58.5L540 57.5L540 55.5L541 54.5L541 52.5L542 51.5L542 49.5L543 48.5L543 46.5L544 45.5L544 43.5L545 42.5L545 40.5L546 39.5L546 37.5L547 36.5L558 1.5ZM892.5 0L1070.5 0L1071.5 1L1087.5 2L1088.5 3L1103.5 6L1104.5 7L1109.5 8L1112.5 10L1114.5 10L1126.5 16L1138.5 24L1157 41.5L1167 55.5L1175 71.5L1175 73.5L1179 83.5L1179 87.5L1180 88.5L1180 92.5L1181 93.5L1181 97.5L1182 98.5L1182 128.5L1181 129.5L1180 139.5L1179 140.5L1178 147.5L1177 148.5L1176 153.5L1173 158.5L1173 160.5L1163 177.5L1145.5 196L1135 203.5L1151.5 212L1166.5 223L1181 238.5L1189 250.5L1198 270.5L1198 273.5L1199 274.5L1200 281.5L1201 282.5L1201 286.5L1202 287.5L1202 294.5L1203 295.5L1203 322.5L1202 323.5L1202 330.5L1201 331.5L1201 336.5L1200 337.5L1200 341.5L1199 342.5L1198 349.5L1197 350.5L1195 358.5L1193 361.5L1193 363.5L1188 373.5L1186 375.5L1181 384.5L1171 395.5L1171 396.5L1161.5 405L1150.5 413L1135.5 421L1133.5 421L1130.5 423L1128.5 423L1121.5 426L1118.5 426L1117.5 427L1114.5 427L1109.5 429L1105.5 429L1104.5 430L1087.5 431L1086.5 432L892 431.5ZM1329.5 0L1382 0.5L1382 380.5L1581.5 381L1583 382.5L1582.5 432L1329 431.5ZM1694.5 0L1967 0.5L1967 49.5L1965.5 51L1747 51.5L1747.5 186L1931 186.5L1931 235.5L1929.5 237L1747 237.5L1747 380.5L1965.5 381L1967 382.5L1966.5 432L1694 431.5ZM2393.5 0L2468 0.5L2473 16.5L2474 17.5L2474 19.5L2475 20.5L2475 22.5L2476 23.5L2476 25.5L2477 26.5L2477 28.5L2478 29.5L2478 31.5L2479 32.5L2479 34.5L2480 35.5L2480 37.5L2481 38.5L2481 40.5L2482 41.5L2482 43.5L2483 44.5L2483 46.5L2484 47.5L2484 49.5L2485 50.5L2485 52.5L2486 53.5L2486 55.5L2487 56.5L2487 58.5L2488 59.5L2488 61.5L2489 62.5L2489 64.5L2490 65.5L2490 67.5L2491 68.5L2491 70.5L2492 71.5L2492 73.5L2493 74.5L2493 76.5L2494 77.5L2494 79.5L2495 80.5L2495 82.5L2496 83.5L2496 85.5L2497 86.5L2497 88.5L2498 89.5L2498 91.5L2499 92.5L2499 94.5L2500 95.5L2500 97.5L2501 98.5L2501 100.5L2502 101.5L2502 103.5L2503 104.5L2503 106.5L2504 107.5L2504 109.5L2505 110.5L2505 112.5L2506 113.5L2506 115.5L2507 116.5L2507 118.5L2508 119.5L2508 121.5L2509 122.5L2509 124.5L2510 125.5L2510 127.5L2511 128.5L2511 130.5L2512 131.5L2512 133.5L2513 134.5L2513 136.5L2514 137.5L2514 139.5L2515 140.5L2515 142.5L2517 145.5L2517 147.5L2518 148.5L2518 150.5L2519 151.5L2519 153.5L2520 154.5L2520 156.5L2521 157.5L2521 159.5L2522 160.5L2522 162.5L2523 163.5L2523 165.5L2524 166.5L2524 168.5L2525 169.5L2525 171.5L2526 172.5L2526 174.5L2527 175.5L2527 177.5L2528 178.5L2528 180.5L2529 181.5L2529 183.5L2530 184.5L2530 186.5L2531 187.5L2531 189.5L2532 190.5L2532 192.5L2533 193.5L2533 195.5L2534 196.5L2534 198.5L2535 199.5L2535 201.5L2536 202.5L2536 204.5L2537 205.5L2537 207.5L2538 208.5L2538 210.5L2539 211.5L2539 213.5L2540 214.5L2540 216.5L2541 217.5L2541 219.5L2542 220.5L2542 222.5L2543 223.5L2543 225.5L2544 226.5L2544 228.5L2545 229.5L2545 231.5L2546 232.5L2546 234.5L2547 235.5L2547 237.5L2548 238.5L2548 240.5L2549 241.5L2549 243.5L2550 244.5L2550 246.5L2551 247.5L2551 249.5L2552 250.5L2552 252.5L2553 253.5L2553 255.5L2554 256.5L2554 258.5L2555 259.5L2555 261.5L2556 262.5L2556 264.5L2557 265.5L2557 267.5L2558 268.5L2558 270.5L2559 271.5L2559 273.5L2560 274.5L2560 276.5L2561 277.5L2561 279.5L2562 280.5L2562 282.5L2563 283.5L2563 285.5L2564 286.5L2564 288.5L2565 289.5L2565 291.5L2566 292.5L2566 294.5L2567 295.5L2567 297.5L2568 298.5L2568 300.5L2569 301.5L2569 303.5L2570 304.5L2570 306.5L2571 307.5L2571 309.5L2572 310.5L2572 312.5L2573 313.5L2573 315.5L2574 316.5L2574 318.5L2575 319.5L2575 321.5L2576 322.5L2576 324.5L2577 325.5L2577 327.5L2578 328.5L2578 330.5L2579 331.5L2579 333.5L2580 334.5L2580 336.5L2581 337.5L2581 339.5L2582 340.5L2582 342.5L2583 343.5L2583 345.5L2584 346.5L2584 348.5L2585 349.5L2596 384.5L2598 387.5L2598 389.5L2599 390.5L2599 392.5L2600 393.5L2600 395.5L2601 396.5L2601 398.5L2602 399.5L2602 401.5L2603 402.5L2603 404.5L2604 405.5L2604 407.5L2612 429.5L2611.5 432L2557.5 432L2556 430.5L2556 428.5L2555 427.5L2555 425.5L2554 424.5L2554 422.5L2553 421.5L2553 419.5L2552 418.5L2552 416.5L2551 415.5L2551 413.5L2550 412.5L2539 377.5L2537 374.5L2537 372.5L2536 371.5L2536 369.5L2535 368.5L2535 366.5L2534 365.5L2534 363.5L2533 362.5L2533 360.5L2532 359.5L2532 357.5L2531 356.5L2531 354.5L2530 353.5L2530 351.5L2522.5 331L2338.5 331L2337 332.5L2337 334.5L2336 335.5L2336 337.5L2335 338.5L2335 340.5L2334 341.5L2334 343.5L2333 344.5L2333 346.5L2332 347.5L2332 349.5L2331 350.5L2331 352.5L2330 353.5L2330 355.5L2329 356.5L2329 358.5L2328 359.5L2328 361.5L2327 362.5L2327 364.5L2326 365.5L2326 367.5L2325 368.5L2325 370.5L2324 371.5L2324 373.5L2323 374.5L2323 376.5L2322 377.5L2322 379.5L2321 380.5L2321 382.5L2320 383.5L2320 385.5L2319 386.5L2319 388.5L2318 389.5L2318 391.5L2317 392.5L2317 394.5L2316 395.5L2305 430.5L2303.5 432L2249 431.5L2250 430.5L2250 428.5L2251 427.5L2251 425.5L2252 424.5L2252 422.5L2253 421.5L2253 419.5L2254 418.5L2254 416.5L2255 415.5L2255 413.5L2256 412.5L2256 410.5L2257 409.5L2257 407.5L2258 406.5L2258 404.5L2259 403.5L2259 401.5L2260 400.5L2260 398.5L2261 397.5L2261 395.5L2262 394.5L2262 392.5L2263 391.5L2263 389.5L2264 388.5L2264 386.5L2265 385.5L2265 383.5L2266 382.5L2266 380.5L2267 379.5L2267 377.5L2268 376.5L2268 374.5L2269 373.5L2269 371.5L2270 370.5L2270 368.5L2271 367.5L2271 365.5L2272 364.5L2272 362.5L2273 361.5L2273 359.5L2274 358.5L2274 356.5L2275 355.5L2275 353.5L2276 352.5L2276 350.5L2277 349.5L2277 347.5L2278 346.5L2278 344.5L2279 343.5L2279 341.5L2280 340.5L2280 338.5L2281 337.5L2281 335.5L2282 334.5L2282 332.5L2283 331.5L2283 329.5L2284 328.5L2284 326.5L2285 325.5L2285 323.5L2286 322.5L2286 320.5L2287 319.5L2287 317.5L2288 316.5L2288 314.5L2289 313.5L2289 311.5L2290 310.5L2290 308.5L2291 307.5L2291 305.5L2292 304.5L2292 302.5L2293 301.5L2293 299.5L2294 298.5L2294 296.5L2295 295.5L2295 293.5L2296 292.5L2296 290.5L2297 289.5L2297 287.5L2298 286.5L2298 284.5L2299 283.5L2299 281.5L2300 280.5L2300 278.5L2301 277.5L2301 275.5L2302 274.5L2302 272.5L2303 271.5L2303 269.5L2304 268.5L2304 266.5L2305 265.5L2316 230.5L2318 227.5L2318 225.5L2319 224.5L2319 222.5L2320 221.5L2320 219.5L2321 218.5L2321 216.5L2322 215.5L2322 213.5L2323 212.5L2323 210.5L2324 209.5L2324 207.5L2325 206.5L2325 204.5L2326 203.5L2326 201.5L2327 200.5L2327 198.5L2328 197.5L2328 195.5L2329 194.5L2329 192.5L2330 191.5L2330 189.5L2331 188.5L2331 186.5L2332 185.5L2332 183.5L2333 182.5L2333 180.5L2334 179.5L2334 177.5L2335 176.5L2335 174.5L2336 173.5L2336 171.5L2337 170.5L2337 168.5L2338 167.5L2338 165.5L2339 164.5L2339 162.5L2340 161.5L2340 159.5L2341 158.5L2341 156.5L2342 155.5L2342 153.5L2343 152.5L2343 150.5L2344 149.5L2344 147.5L2345 146.5L2345 144.5L2346 143.5L2346 141.5L2347 140.5L2347 138.5L2348 137.5L2348 135.5L2349 134.5L2349 132.5L2350 131.5L2350 129.5L2351 128.5L2351 126.5L2352 125.5L2352 123.5L2353 122.5L2353 120.5L2354 119.5L2354 117.5L2355 116.5L2355 114.5L2356 113.5L2356 111.5L2357 110.5L2357 108.5L2358 107.5L2358 105.5L2359 104.5L2359 102.5L2360 101.5L2360 99.5L2361 98.5L2361 96.5L2362 95.5L2362 93.5L2363 92.5L2363 90.5L2364 89.5L2364 87.5L2365 86.5L2365 84.5L2366 83.5L2366 81.5L2367 80.5L2367 78.5L2368 77.5L2368 75.5L2369 74.5L2369 72.5L2370 71.5L2370 69.5L2371 68.5L2371 66.5L2372 65.5L2372 63.5L2373 62.5L2373 60.5L2374 59.5L2374 57.5L2375 56.5L2375 54.5L2376 53.5L2376 51.5L2377 50.5L2377 48.5L2378 47.5L2378 45.5L2379 44.5L2379 42.5L2380 41.5L2380 39.5L2381 38.5L2381 36.5L2382 35.5L2382 33.5L2383 32.5L2383 30.5L2384 29.5L2384 27.5L2385 26.5L2385 24.5L2386 23.5L2386 21.5L2387 20.5L2387 18.5L2388 17.5ZM2732.5 0L2786 0.5L2785.5 432L2732 431.5ZM946.5 50L945 51.5L945.5 180L1070.5 180L1071.5 179L1075.5 179L1076.5 178L1079.5 178L1080.5 177L1088.5 175L1096.5 171L1107.5 163L1116 153.5L1120 147.5L1126 132.5L1127 120.5L1128 119.5L1128 107.5L1127 106.5L1126 96.5L1125 95.5L1123 87.5L1116 75.5L1103.5 63L1097.5 59L1086.5 54L1083.5 54L1079.5 52L1075.5 52L1074.5 51L1066.5 51L1065.5 50ZM595.5 57L594 58.5L594 60.5L593 61.5L582 96.5L580 99.5L580 101.5L579 102.5L579 104.5L578 105.5L578 107.5L577 108.5L577 110.5L576 111.5L576 113.5L575 114.5L575 116.5L574 117.5L574 119.5L573 120.5L573 122.5L572 123.5L572 125.5L571 126.5L571 128.5L570 129.5L570 131.5L569 132.5L569 134.5L568 135.5L568 137.5L567 138.5L567 140.5L566 141.5L566 143.5L565 144.5L565 146.5L564 147.5L564 149.5L563 150.5L563 152.5L562 153.5L562 155.5L561 156.5L561 158.5L560 159.5L560 161.5L559 162.5L559 164.5L558 165.5L558 167.5L557 168.5L557 170.5L556 171.5L556 173.5L555 174.5L555 176.5L554 177.5L554 179.5L553 180.5L553 182.5L552 183.5L552 185.5L551 186.5L551 188.5L550 189.5L550 191.5L549 192.5L549 194.5L548 195.5L548 197.5L547 198.5L547 200.5L546 201.5L546 203.5L545 204.5L545 206.5L544 207.5L544 209.5L543 210.5L543 212.5L542 213.5L542 215.5L541 216.5L541 218.5L540 219.5L540 221.5L539 222.5L539 224.5L538 225.5L538 227.5L537 228.5L537 230.5L536 231.5L536 233.5L535 234.5L535 236.5L534 237.5L534 239.5L533 240.5L533 242.5L532 243.5L532 245.5L531 246.5L531 248.5L530 249.5L530 251.5L529 252.5L529 254.5L528 255.5L528 257.5L520 279.5L520.5 281L671 280.5ZM2429.5 57L2424 74.5L2423 75.5L2423 77.5L2422 78.5L2422 80.5L2421 81.5L2421 83.5L2420 84.5L2420 86.5L2419 87.5L2419 89.5L2418 90.5L2418 92.5L2417 93.5L2417 95.5L2416 96.5L2416 98.5L2415 99.5L2415 101.5L2414 102.5L2414 104.5L2413 105.5L2413 107.5L2412 108.5L2412 110.5L2411 111.5L2411 113.5L2410 114.5L2410 116.5L2409 117.5L2409 119.5L2408 120.5L2408 122.5L2407 123.5L2407 125.5L2406 126.5L2406 128.5L2405 129.5L2405 131.5L2404 132.5L2404 134.5L2403 135.5L2403 137.5L2402 138.5L2402 140.5L2401 141.5L2401 143.5L2400 144.5L2400 146.5L2399 147.5L2399 149.5L2398 150.5L2398 152.5L2397 153.5L2397 155.5L2396 156.5L2396 158.5L2395 159.5L2395 161.5L2394 162.5L2394 164.5L2393 165.5L2393 167.5L2392 168.5L2392 170.5L2391 171.5L2391 173.5L2390 174.5L2390 176.5L2389 177.5L2389 179.5L2388 180.5L2388 182.5L2387 183.5L2387 185.5L2386 186.5L2386 188.5L2385 189.5L2385 191.5L2384 192.5L2384 194.5L2383 195.5L2383 197.5L2382 198.5L2382 200.5L2381 201.5L2381 203.5L2379 206.5L2379 208.5L2378 209.5L2378 211.5L2377 212.5L2377 214.5L2376 215.5L2376 217.5L2375 218.5L2375 220.5L2374 221.5L2374 223.5L2373 224.5L2373 226.5L2372 227.5L2372 229.5L2371 230.5L2371 232.5L2370 233.5L2370 235.5L2369 236.5L2369 238.5L2368 239.5L2368 241.5L2367 242.5L2367 244.5L2366 245.5L2355 280.5L2505.5 281L2506 280.5L2505 279.5L2505 277.5L2504 276.5L2504 274.5L2503 273.5L2503 271.5L2502 270.5L2502 268.5L2501 267.5L2501 265.5L2500 264.5L2500 262.5L2499 261.5L2499 259.5L2498 258.5L2498 256.5L2497 255.5L2486 220.5L2484 217.5L2484 215.5L2483 214.5L2483 212.5L2482 211.5L2482 209.5L2481 208.5L2481 206.5L2480 205.5L2480 203.5L2479 202.5L2479 200.5L2478 199.5L2478 197.5L2477 196.5L2477 194.5L2476 193.5L2476 191.5L2475 190.5L2475 188.5L2474 187.5L2474 185.5L2473 184.5L2473 182.5L2472 181.5L2472 179.5L2471 178.5L2460 143.5L2458 140.5L2458 138.5L2457 137.5L2457 135.5L2456 134.5L2456 132.5L2455 131.5L2455 129.5L2454 128.5L2454 126.5L2453 125.5L2453 123.5L2452 122.5L2452 120.5L2451 119.5L2451 117.5L2450 116.5L2450 114.5L2449 113.5L2449 111.5L2448 110.5L2448 108.5L2447 107.5L2447 105.5L2446 104.5L2446 102.5L2445 101.5L2445 99.5L2444 98.5L2433 63.5L2431 60.5L2431 58.5ZM945.5 231L945.5 381L1075.5 381L1076.5 380L1088.5 379L1089.5 378L1095.5 377L1096.5 376L1101.5 375L1104.5 373L1106.5 373L1120.5 365L1134 352.5L1139 345.5L1141 340.5L1143 338.5L1143 336.5L1146 329.5L1146 326.5L1147 325.5L1147 321.5L1148 320.5L1148 309.5L1149 308.5L1148 307.5L1148 296.5L1147 295.5L1146 286.5L1145 285.5L1143 277.5L1138 267.5L1132 258.5L1119.5 246L1110.5 240L1102.5 236L1100.5 236L1093.5 233L1084.5 232L1083.5 231Z\"></path></svg>" };
+const THEMES = {
+    light: { id: "tableai-institutional", fontSans: "Manrope", fontZh: "Noto Sans TC", t: {
+            ground: "#FFFFFF", ink: "#1B1B1D", ink2: "#44474C", deep: "#0A1626", hair: "#C5C6CD", outline: "#75777D", gold: "#A88B52", goldText: "#785F2A",
+            mist: "rgba(168,139,82,.08)", grid: "rgba(10,22,38,.05)", panel: "#0A1626", panelInk: "#FFFFFF", panelInk2: "#C5C6CD", panelLine: "#3C4759", goldOnPanel: "#C9AE7A",
+            tDeep: "#0A1626", tGold: "#A88B52", tSlate: "#3C4759", tSteel: "#75777D", tLight: "#C5C6CD", stitchBg: "#E4E2E3"
+        } },
+    night: { id: "tableai-night", fontSans: "Manrope", fontZh: "Noto Sans TC", t: {
+            ground: "#0A1626", ink: "#E8E9EC", ink2: "#A9AEB8", deep: "#FFFFFF", hair: "#3C4759", outline: "#75777D", gold: "#A88B52", goldText: "#C9AE7A",
+            mist: "rgba(168,139,82,.16)", grid: "rgba(255,255,255,.05)", panel: "#F0EDEF", panelInk: "#0A1626", panelInk2: "#44474C", panelLine: "#C5C6CD", goldOnPanel: "#785F2A",
+            tDeep: "#E8E9EC", tGold: "#A88B52", tSlate: "#A9AEB8", tSteel: "#75777D", tLight: "#3C4759", stitchBg: "#060E19"
+        } },
+};
+const TOKEN_VARS = {
+    ground: "--c-ground", ink: "--c-ink", ink2: "--c-ink2", deep: "--c-deep", hair: "--c-hair", outline: "--c-outline", gold: "--c-gold", goldText: "--c-gold-text",
+    mist: "--c-mist", grid: "--c-grid", panel: "--c-panel", panelInk: "--c-panel-ink", panelInk2: "--c-panel-ink2", panelLine: "--c-panel-line", goldOnPanel: "--c-gold-on-panel",
+    tDeep: "--t-deep", tGold: "--t-gold", tSlate: "--t-slate", tSteel: "--t-steel", tLight: "--t-light",
+};
+/* ============================== UI strings ============================== */
+const UI = {
+    en: { menu: "Open menu", close: "Close", contents: "Contents", language: "Language", theme: "Theme", auto: "Auto", light: "Light", night: "Night", export: "Export images",
+        long: "Long image", stitched: "Stitched image", zip: "Sections", pages: "Page numbers on stitched and section images", library: "Library", article: "Article",
+        edit: "Edit content", data: "Data, API and MCP", glossary: "Glossary", apply: "Apply", saveLib: "Save to library", saveFile: "Save file", loadFile: "Load file",
+        restore: "Restore built-in", copy: "Copy article JSON", preview: "Preview", livePreview: "Live preview while typing",
+        holdSave: "Saving files is not available in this view. Press and hold, or right-click, the image to save it.",
+        editHelp: "One Markdown file per language with the same structure. Sections: ## 01 Title {#id}. Blocks: paragraphs, > quotes, ::: directives. Terms: [[id]] or [[id|label]].",
+        builtin: "Built-in", libNone: "Sign in to claude.ai to open the shared library. The built-in article is shown.", libEmpty: "The library is empty. Articles saved here appear for everyone with access.",
+        rendering: "Rendering…", saved: "Saved", cancelled: "Save cancelled", tooBusy: "Another save is open. Try again shortly.", failed: "Export failed", applied: "Article updated",
+        libSaved: "Saved to library. Readers see it now.", libDenied: "Only editors can save to the shared library. Kept in this browser instead.", copied: "Copied",
+        live: "Updated live from the library", remote: "A newer version was saved by someone else. Save or close to load it.",
+        view: "Preview width", viewAuto: "Auto", viewPhone: "Phone H5", viewWeb: "Web",
+        viewNote: "Auto follows this screen. Phone and Web preview H5 and desktop reading. Exported images always use the fixed 750 px layout." },
+    zh: { menu: "打開選單", close: "關閉", contents: "目錄", language: "語言", theme: "主題", auto: "自動", light: "淺色", night: "深色", export: "匯出圖片",
+        long: "長圖", stitched: "拼接圖", zip: "分段圖", pages: "拼接圖及分段圖顯示頁碼", library: "文庫", article: "文章",
+        edit: "編輯內容", data: "數據、API 與 MCP", glossary: "詞彙表", apply: "套用", saveLib: "儲存至文庫", saveFile: "儲存檔案", loadFile: "載入檔案",
+        restore: "還原內建文章", copy: "複製文章 JSON", preview: "預覽", livePreview: "輸入時即時預覽",
+        holdSave: "此檢視不支援儲存檔案。請長按或右鍵點擊圖片以儲存。",
+        editHelp: "每種語言一個 Markdown 檔，結構相同。章節：## 01 標題 {#id}。區塊：段落、> 引言、::: 指令。詞彙：[[id]] 或 [[id|顯示文字]]。",
+        builtin: "內建", libNone: "登入 claude.ai 後可開啟共享文庫。現顯示內建文章。", libEmpty: "文庫尚無文章。儲存於此的文章對所有有權限者可見。",
+        rendering: "正在生成…", saved: "已儲存", cancelled: "已取消儲存", tooBusy: "另一個儲存視窗已開啟，請稍後再試。", failed: "匯出失敗", applied: "文章已更新",
+        libSaved: "已儲存至文庫，讀者即時可見。", libDenied: "只有編輯者可儲存至共享文庫，已改為保存在此瀏覽器。", copied: "已複製",
+        live: "已從文庫即時更新", remote: "其他人已儲存較新版本。儲存或關閉編輯器後即可載入。",
+        view: "版面預覽", viewAuto: "自動", viewPhone: "手機 H5", viewWeb: "網頁",
+        viewNote: "自動跟隨目前螢幕。手機與網頁分別預覽 H5 與桌面閱讀效果。匯出圖片一律使用固定的 750 px 版式。" },
+};
+/* ============================== State ============================== */
+const LS = { lang: "tai-lang", theme: "tai-theme", draft: "tai-draft", pages: "tai-pages", view: "tai-view" };
+const ls = {
+    get: (k) => { try {
+        return localStorage.getItem(k);
+    }
+    catch {
+        return null;
+    } },
+    set: (k, v) => { try {
+        localStorage.setItem(k, v);
+    }
+    catch { /* storage unavailable */ } },
+    del: (k) => { try {
+        localStorage.removeItem(k);
+    }
+    catch { /* storage unavailable */ } },
+};
+/** Saved choice first; otherwise the browser's preferred languages. */
+function initialLang() {
+    const saved = ls.get(LS.lang);
+    if (saved === "zh" || saved === "en")
+        return saved;
+    return (navigator.languages?.length ? navigator.languages : [navigator.language]).some(l => /^zh/i.test(l)) ? "zh" : "en";
+}
+const state = {
+    article: BUILTIN, lang: initialLang(), view: ls.get(LS.view) || "auto", themePref: ls.get(LS.theme) || "auto",
+    library: [], db: null, canEdit: false, downloads: null, libStatus: "loading", stamp: {}, fromDraft: false,
+};
+try {
+    const d = ls.get(LS.draft);
+    if (d) {
+        const r = validate(JSON.parse(d));
+        if (r.ok) {
+            state.article = r.article;
+            state.fromDraft = true;
+        }
+    }
+}
+catch { /* ignore a corrupt draft */ }
+function mustBeValid(input) {
+    const r = validate(input);
+    if (!r.ok)
+        throw new Error(r.issues.slice(0, 4).map(i => `${i.path || "article"}: ${i.message}`).join("\n"));
+    return r.article;
+}
+const toRecord = (a, md) => ({
+    id: a.id, schema: a.schema, slug: a.slug || a.id, title: a.title, status: a.status || "draft", date: a.date || "",
+    updatedAt: new Date().toISOString(), json: JSON.stringify(a),
+    md_en: md?.en ?? toMarkdown(a, "en"), md_zh: md?.zh ?? toMarkdown(a, "zh"),
+});
+/* ============================== Rendering ============================== */
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const L = () => state.lang;
+const pk = (v) => (v == null ? "" : typeof v === "string" ? v : (v[L()] ?? v.en ?? ""));
+const T = (v) => esc(pk(v));
+const TX = (v) => parseInline(pk(v), state.article, L()).map(t => t.kind === "term"
+    ? `<span class="term" role="button" tabindex="0" data-term="${esc(t.id)}">${esc(t.label)}</span>` : esc(t.text)).join("");
+const fmt = (n) => (Math.round(n * 10) / 10).toString();
+const resolveTheme = () => state.themePref === "auto" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "night" : "light") : state.themePref;
+const theme = () => THEMES[resolveTheme()];
+const logoCache = new Map();
+function logoSrc(kind, color) {
+    const k = kind + color;
+    let v = logoCache.get(k);
+    if (!v) {
+        v = URL.createObjectURL(new Blob([LOGO[kind].replace('fill="currentColor"', `fill="${color}"`)], { type: "image/svg+xml" }));
+        logoCache.set(k, v);
+    }
+    return v;
+}
+const logoImg = (kind, color, cls) => `<img class="logo ${cls}" src="${logoSrc(kind, color)}" alt="TABLE AI" decoding="async">`;
+function ringSVG(n, t, o = {}) {
+    const c = 280, r2 = 190;
+    let lines = "", dots = "";
+    for (let i = 0; i < n; i++) {
+        const a = (-90 + i * 360 / n) * Math.PI / 180, x = (c + r2 * Math.cos(a)).toFixed(1), y = (c + r2 * Math.sin(a)).toFixed(1);
+        lines += `<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="${o.line || t.deep}" stroke-opacity=".3" stroke-width="2"/>`;
+        dots += `<circle cx="${x}" cy="${y}" r="${o.dot || 10}" fill="${t.gold}"/>`;
+    }
+    const rc = o.ring || t.hair;
+    return `<svg viewBox="0 0 560 560" aria-hidden="true"><circle cx="${c}" cy="${c}" r="270" fill="none" stroke="${rc}" stroke-width="2"/>`
+        + `<circle cx="${c}" cy="${c}" r="${r2}" fill="none" stroke="${rc}" stroke-width="2"/><circle cx="${c}" cy="${c}" r="110" fill="none" stroke="${rc}" stroke-width="2" stroke-dasharray="3 9"/>`
+        + `${lines}${dots}<circle cx="${c}" cy="${c}" r="${o.center || 58}" fill="${o.centerFill || t.deep}"/></svg>`;
+}
+const tone = (k) => `var(--t-${k || "deep"})`;
+const BLOCKS = {
+    cover(b, a, t) {
+        const nodes = b.ring?.nodes || [];
+        const labels = nodes.map((nd, i) => {
+            const ang = (-90 + i * 360 / nodes.length) * Math.PI / 180;
+            return `<div class="node" style="left:${(50 + 42.5 * Math.cos(ang)).toFixed(2)}%;top:${(50 + 42.5 * Math.sin(ang)).toFixed(2)}%">${T(nd)}</div>`;
+        }).join("");
+        return `<div class="grid-bg"></div><div class="cover-body">${logoImg("lockup", t.deep, "cover-logo")}<p class="eyebrow">${T(b.eyebrow)}</p><div class="accent"></div>`
+            + `<h1>${T(a.title)}</h1><p class="sub">${T(b.subtitle)}</p>`
+            + (b.ring ? `<div class="ring">${ringSVG(nodes.length, t)}${labels}<div class="center">${T(b.ring.center)}</div></div><p class="caption">${T(b.ring.caption)}</p>` : "")
+            + `<p class="byline">${T(b.byline)}</p></div>`;
+    },
+    lead: b => `<p class="lead">${TX(b.text)}</p>`,
+    p: b => `<p class="t">${TX(b.text)}</p>`,
+    stats: b => `<div class="stats">${(b.items || []).map((s) => `<div class="stat${s.key ? " key" : ""}"><div class="v">${T(s.value)}</div><div class="l">${T(s.label)}</div></div>`).join("")}</div>`,
+    principles: b => `<ol class="prin">${(b.items || []).map((p, i) => `<li><div class="n">${i + 1}</div><div><p class="h">${T(p.title)}</p><p class="d">${TX(p.text)}</p></div></li>`).join("")}</ol>`,
+    stacked(b) {
+        const segs = b.segments || [], total = segs.reduce((s, x) => s + (+x.value || 0), 0) || 1;
+        return `<div class="fig"><p class="ft">${T(b.title)}</p>${b.subtitle ? `<p class="fs">${T(b.subtitle)}</p>` : ""}`
+            + `<div class="sbar">${segs.map(s => `<div style="width:${(s.value / total * 100).toFixed(3)}%;background:${tone(s.tone)}"></div>`).join("")}</div>`
+            + `<div class="legend">${segs.map(s => `<div class="r"><div class="sw" style="background:${tone(s.tone)}"></div><div>${T(s.label)}</div><div class="val">${fmt(s.value)}</div></div>`).join("")}`
+            + `<div class="r"><div></div><div><b>${L() === "zh" ? "合計" : "Total"}</b></div><div class="val">${fmt(total)}</div></div></div>${b.note ? `<p class="fn">${TX(b.note)}</p>` : ""}</div>`;
+    },
+    ranges(b) {
+        const rows = b.rows || [], max = b.max || Math.max(...rows.map(r => r.high)) || 1, pct = (v) => v / max * 100;
+        const grid = (b.ticks || []).map((t) => `<div class="gridl" style="left:${pct(t)}%"></div>`).join("");
+        const body = rows.map(r => {
+            const col = `var(--t-${r.tone || "steel"})`, single = r.low === r.high, lo = pct(r.low), hi = pct(r.high);
+            const mark = single ? `<div class="dot" style="left:${lo}%;background:${col}"></div>` : `<div class="bar" style="left:${lo}%;width:${hi - lo}%;background:${col}"></div>`;
+            const lab = single ? `${fmt(r.low)}%` : `${fmt(r.low)}–${fmt(r.high)}%`;
+            const pos = hi > 72 ? `right:calc(${100 - lo}% + 16px)` : `left:calc(${hi}% + 18px)`;
+            return `<div class="r"><div class="lab">${T(r.label)}</div><div class="track">${grid}${mark}<div class="vl" style="${pos}">${lab}</div></div></div>`;
+        }).join("");
+        return `<div class="fig ranges"><p class="ft">${T(b.title)}</p>${b.subtitle ? `<p class="fs">${T(b.subtitle)}</p>` : ""}${body}`
+            + `<div class="ticks">${(b.ticks || []).map((t) => `<span style="left:${pct(t)}%">${t}%</span>`).join("")}</div>${b.note ? `<p class="fn">${TX(b.note)}</p>` : ""}</div>`;
+    },
+    layers: b => `<div class="fig layers">${(b.rows || []).map((r, i) => `${i ? `<div class="conn"></div>` : ""}<div class="band${r.dark ? " dark" : ""}"><div class="bt">${T(r.title)}</div><div class="items">${(r.items || []).map((it) => `<span class="chip">${T(it)}</span>`).join("")}</div></div>`).join("")}</div>`,
+    steps: b => `<div class="steps">${(b.items || []).map((s, i) => `<div class="s"><div class="i">${i + 1}</div><div class="tx">${TX(s)}</div></div>`).join("")}</div>`,
+    timeline: b => `<div class="tl">${(b.items || []).map((r) => `<div class="r"><div class="d">${T(r.date)}</div><div class="x">${TX(r.text)}</div></div>`).join("")}</div>`,
+    quote: b => `<div class="quote"><div class="gl"></div><p>${TX(b.text)}</p></div>`,
+    ending(b, _a, t) {
+        const svg = ringSVG(8, t, { line: t.panelInk, ring: t.panelLine, centerFill: t.panel, center: 78, dot: 12 });
+        return `<div class="ending"><div class="ring-wrap">${svg}${logoImg("mark", t.panelInk, "")}</div><p class="end-line">${T(b.line)}</p>`
+            + `<div class="formula">${(b.formula || []).map((f) => `<span>${T(f)}</span>`).join("")}</div><p class="end-cap">${TX(b.caption)}</p></div>`;
+    },
+    glossary: (_b, a) => `<dl class="glos">${Object.entries(a.terms || {}).map(([id, x]) => `<div id="term-${esc(id)}"><dt>${T(x.term)}</dt><dd class="gl-d">${T(x.def)}</dd></div>`).join("")}</dl>`,
+    sources: b => `<ol class="src">${(b.items || []).map((s) => `<li><div>${T(s.label)}<span class="u">${esc(s.url || "")}</span></div></li>`).join("")}</ol>`,
+    note: b => `<p class="note">${TX(b.text)}</p>`,
+};
+function renderArticle(a, t) {
+    return a.sections.map((s, i) => {
+        const head = s.kind === "cover" || s.kind === "ending" || !s.title ? "" : `${s.num ? `<p class="num">${esc(s.num)} —</p>` : ""}<h2>${T(s.title)}</h2>`;
+        const body = (s.blocks || []).map(b => (BLOCKS[b.type] ? BLOCKS[b.type](b, a, t) : "")).join("");
+        return `<section class="sec sec-${esc(s.kind || "body")}${s.tone === "dark" ? " dark" : ""}" id="s-${esc(s.id)}" data-i="${i}">${head}${body}</section>`;
+    }).join("") + `<footer class="endfoot">${logoImg("lockup", t.deep, "foot-logo")}<span>${esc(a.brand?.site || "")}</span></footer>`;
+}
+/* ============================== Reader UI ============================== */
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const art = $("#article");
+const ui = (k) => UI[L()][k] ?? k;
+function applyTheme() {
+    const th = theme();
+    for (const [k, v] of Object.entries(TOKEN_VARS))
+        art.style.setProperty(v, th.t[k]);
+    art.style.setProperty("--font-sans", th.fontSans);
+    art.style.setProperty("--font-zh", `"${th.fontZh}"`);
+    document.documentElement.setAttribute("data-theme", resolveTheme() === "night" ? "dark" : "light");
+}
+function applyView() {
+    if (state.view === "auto")
+        art.removeAttribute("data-view");
+    else
+        art.setAttribute("data-view", state.view);
+}
+function render() {
+    const a = state.article;
+    art.lang = L() === "zh" ? "zh-Hant-HK" : "en";
+    document.documentElement.lang = art.lang;
+    applyTheme();
+    art.innerHTML = renderArticle(a, theme().t);
+    document.title = `${pk(a.title)} — ${a.brand?.name || "TABLE AI"}`;
+    $("#ld").textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: pk(a.title), description: pk(a.summary),
+        datePublished: a.date, inLanguage: art.lang, identifier: a.id, publisher: { "@type": "Organization", name: a.brand?.name } });
+    renderUI();
+    renderTOC();
+    observe();
+    measure();
+    onScroll();
+}
+function rerender() { const y = scrollY; render(); scrollTo({ top: y, behavior: "instant" }); }
+function renderUI() {
+    $$("[data-ui]").forEach(el => { const k = el.dataset.ui; if (UI[L()][k])
+        el.textContent = UI[L()][k]; });
+    $("#fab").setAttribute("aria-label", ui("menu"));
+    $$("#langSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === L())));
+    $$("#themeSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === state.themePref)));
+    $$("#viewSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === state.view)));
+    applyView();
+    renderLibrary();
+}
+function renderTOC() {
+    $("#toc").innerHTML = state.article.sections.filter(s => s.toc !== false)
+        .map(s => `<li><a href="#s-${esc(s.id)}" data-id="${esc(s.id)}"><span class="n">${esc(s.num || "")}</span><span>${T(s.tocLabel || s.title)}</span></a></li>`).join("");
+}
+let io;
+function observe() {
+    io?.disconnect();
+    io = new IntersectionObserver(es => es.forEach(e => {
+        if (!e.isIntersecting)
+            return;
+        const id = e.target.id.slice(2);
+        $$("#toc a").forEach(x => x.classList.toggle("on", x.dataset.id === id));
+    }), { rootMargin: "-35% 0px -60% 0px" });
+    $$(".sec").forEach(s => io.observe(s));
+}
+let ticking = false, scrollMax = 1;
+const bar = $("#bar");
+function measure() { scrollMax = Math.max(1, document.documentElement.scrollHeight - innerHeight); }
+function onScroll() {
+    if (ticking)
+        return;
+    ticking = true;
+    requestAnimationFrame(() => { bar.style.transform = `scaleX(${Math.min(1, scrollY / scrollMax)})`; ticking = false; });
+}
+addEventListener("scroll", onScroll, { passive: true });
+addEventListener("resize", () => { measure(); onScroll(); }, { passive: true });
+new ResizeObserver(() => { measure(); onScroll(); }).observe(art);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (state.themePref === "auto")
+    rerender(); });
+// Menu
+const sheet = $("#sheet"), scrim = $("#scrim");
+function openSheet(on) {
+    sheet.classList.toggle("on", on);
+    scrim.classList.toggle("on", on);
+    document.body.classList.toggle("sheet-open", on);
+    sheet.setAttribute("aria-hidden", String(!on));
+    $("#fab").setAttribute("aria-expanded", String(on));
+    (on ? $("#sheetClose") : $("#fab")).focus();
+}
+$("#fab").onclick = () => {
+    if (document.body.classList.contains("editing")) {
+        showEditor(true);
+        return;
+    }
+    openSheet(true);
+    warmExport();
+};
+$("#sheetClose").onclick = () => openSheet(false);
+scrim.onclick = () => openSheet(false);
+$("#toc").addEventListener("click", (e) => {
+    const a = e.target.closest("a");
+    if (!a)
+        return;
+    e.preventDefault();
+    openSheet(false);
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setTimeout(() => document.getElementById("s-" + a.dataset.id)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" }), 120);
+});
+$("#langSeg").onclick = (e) => { const b = e.target.closest("button"); if (!b)
+    return; state.lang = b.dataset.v === "zh" ? "zh" : "en"; ls.set(LS.lang, state.lang); rerender(); };
+$("#themeSeg").onclick = (e) => { const b = e.target.closest("button"); if (!b)
+    return; state.themePref = b.dataset.v; ls.set(LS.theme, state.themePref); rerender(); };
+$("#viewSeg").onclick = (e) => {
+    const b = e.target.closest("button");
+    if (!b)
+        return;
+    state.view = b.dataset.v;
+    ls.set(LS.view, state.view);
+    $$("#viewSeg button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    applyView();
+    measure();
+    onScroll();
+};
+$("#pageNums").checked = ls.get(LS.pages) !== "0";
+$("#pageNums").onchange = (e) => ls.set(LS.pages, e.target.checked ? "1" : "0");
+// Terms
+const ts = $("#termsheet");
+function showTerm(id) {
+    const x = state.article.terms?.[id];
+    if (!x)
+        return;
+    $("#termT").textContent = pk(x.term);
+    $("#termD").textContent = pk(x.def);
+    ts.dataset.id = id;
+    ts.classList.add("on");
+}
+art.addEventListener("click", (e) => { const t = e.target.closest(".term"); if (t)
+    showTerm(t.dataset.term); });
+art.addEventListener("keydown", (e) => {
+    const t = e.target.closest(".term");
+    if (t && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        showTerm(t.dataset.term);
+    }
+});
+$("#termClose").onclick = () => ts.classList.remove("on");
+$("#termAll").onclick = () => { ts.classList.remove("on"); document.getElementById("term-" + ts.dataset.id)?.scrollIntoView({ behavior: "smooth", block: "center" }); };
+// Toast and modals
+let toastTimer;
+function toast(m, ms = 2600) {
+    const el = $("#toast");
+    el.textContent = m;
+    el.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => el.classList.remove("on"), ms);
+}
+const openModal = (id, on = true) => $(id).classList.toggle("on", on);
+$$("[data-close]").forEach(b => b.onclick = () => b.closest(".modal").classList.remove("on"));
+addEventListener("keydown", (e) => {
+    if (e.key !== "Escape")
+        return;
+    $$(".modal.on").forEach(m => m.classList.remove("on"));
+    ts.classList.remove("on");
+    if (sheet.classList.contains("on"))
+        openSheet(false);
+});
+/* ============================== Export ============================== */
+const EXPORT_SCALE = 1080 / 750;
+const LIBS = {
+    h2c: "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+    zip: "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js",
+};
+const libLoads = {};
+function loadLib(key) {
+    return libLoads[key] ??= new Promise((res, rej) => {
+        const s = document.createElement("script");
+        s.src = LIBS[key];
+        s.async = true;
+        s.onload = () => res();
+        s.onerror = () => { delete libLoads[key]; rej(new Error("Could not load the export library")); };
+        document.head.appendChild(s);
+    });
+}
+const warmExport = () => { const idle = window.requestIdleCallback || setTimeout; idle(() => { loadLib("h2c").catch(() => undefined); }); };
+const baseName = () => `${state.article.id}-${L() === "zh" ? "zh-hant" : "en"}`;
+function prep(doc, extra) {
+    const a = doc.getElementById("article");
+    a.removeAttribute("data-view");
+    a.style.setProperty("--u", "1px");
+    a.style.width = "750px";
+    a.classList.add("exporting");
+    doc.querySelectorAll(".sec").forEach(s => { s.style.borderTop = "none"; });
+    extra?.(doc);
+}
+function pageFoot(i, n, dark) {
+    const t = theme().t;
+    return `<div class="pfoot">${logoImg("lockup", dark ? t.panelInk : t.deep, "foot-logo")}<span>${esc(state.article.brand?.site || "")}</span>`
+        + `<span class="pg">${String(i + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}</span></div>`;
+}
+async function shot(el, scale, extra) {
+    await Promise.all([document.fonts.ready, loadLib("h2c")]);
+    return html2canvas(el, { scale, backgroundColor: theme().t.ground, useCORS: true, logging: false, windowWidth: 1200, onclone: (doc) => prep(doc, extra) });
+}
+const height750 = (el) => el.offsetHeight * 750 / art.offsetWidth;
+const fitScale = (cssH) => Math.min(EXPORT_SCALE, 30000 / cssH, Math.sqrt(16000000 / (750 * cssH)));
+async function sectionShots(scale, numbers) {
+    const secs = $$(".sec"), n = secs.length, out = [];
+    for (let i = 0; i < n; i++) {
+        const dark = secs[i].classList.contains("dark");
+        out.push(await shot(secs[i], scale, numbers ? doc => doc.querySelector(`.sec[data-i="${i}"]`).insertAdjacentHTML("beforeend", pageFoot(i, n, dark)) : undefined));
+    }
+    return out;
+}
+const toBlob = (c) => new Promise(r => c.toBlob(b => r(b), "image/png"));
+async function deliver(name, data, preview) {
+    if (state.downloads && data != null) {
+        try {
+            await state.downloads.save({ filename: name, data });
+            toast(`${ui("saved")}: ${name}`);
+            return;
+        }
+        catch (e) {
+            if (e?.code === "declined") {
+                toast(ui("cancelled"));
+                return;
+            }
+            if (e?.code === "rate_limited") {
+                toast(ui("tooBusy"));
+                return;
+            }
+        }
+    }
+    if (preview) {
+        $("#imgPrev").src = preview.toDataURL("image/png");
+        openModal("#imgModal");
+    }
+}
+async function runExport(kind) {
+    const btns = $$("[data-exp]");
+    btns.forEach(b => (b.disabled = true));
+    openSheet(false);
+    toast(ui("rendering"), 60000);
+    try {
+        const numbers = $("#pageNums").checked;
+        if (kind === "long") {
+            const c = await shot(art, fitScale(height750(art)));
+            await deliver(`${baseName()}-long.png`, await toBlob(c), c);
+        }
+        else if (kind === "stitched") {
+            const secs = $$(".sec"), gap = 28, margin = 40;
+            const cssH = secs.reduce((s, el) => s + height750(el) + (numbers ? 104 : 0), 0) + gap * (secs.length - 1) + margin * 2;
+            const sc = fitScale(cssH * 830 / 750);
+            const parts = await sectionShots(sc, numbers);
+            const m = Math.round(margin * sc), g = Math.round(gap * sc);
+            const out = document.createElement("canvas");
+            out.width = parts[0].width + 2 * m;
+            out.height = parts.reduce((s, c) => s + c.height, 0) + g * (parts.length - 1) + 2 * m;
+            const ctx = out.getContext("2d");
+            ctx.fillStyle = theme().t.stitchBg;
+            ctx.fillRect(0, 0, out.width, out.height);
+            let y = m;
+            for (const c of parts) {
+                ctx.drawImage(c, m, y);
+                y += c.height + g;
+            }
+            await deliver(`${baseName()}-stitched.png`, await toBlob(out), out);
+        }
+        else {
+            const [parts] = await Promise.all([sectionShots(EXPORT_SCALE, numbers), loadLib("zip")]);
+            const zip = new JSZip();
+            for (let i = 0; i < parts.length; i++)
+                zip.file(`${baseName()}-${String(i + 1).padStart(2, "0")}.png`, await toBlob(parts[i]));
+            await deliver(`${baseName()}-sections.zip`, state.downloads ? await zip.generateAsync({ type: "blob" }) : null, parts[0]);
+        }
+    }
+    catch (e) {
+        toast(`${ui("failed")}: ${e?.message || e}`, 5000);
+    }
+    finally {
+        btns.forEach(b => (b.disabled = false));
+    }
+}
+$$("[data-exp]").forEach(b => (b.onclick = () => runExport(b.dataset.exp)));
+/* ============================== Library (live) ============================== */
+function renderLibrary() {
+    const rows = state.library, cur = state.article.id;
+    const head = rows.some(r => r.id === BUILTIN.id) ? [] : [{ id: BUILTIN.id, title: BUILTIN.title, builtin: true }];
+    const items = [...head, ...rows];
+    $("#lib").innerHTML = items.map(r => `<li><button type="button" data-id="${esc(r.id)}" aria-current="${r.id === cur}">${T(r.title) || esc(r.id)}`
+        + `<small>${esc(r.builtin ? ui("builtin") : r.status || "")}${r.date ? " " + esc(r.date) : ""}</small></button></li>`).join("");
+    $("#libNote").textContent = state.libStatus === "none" ? ui("libNone") : state.libStatus === "ready" && !rows.length ? ui("libEmpty") : "";
+}
+function openRecord(rec) {
+    state.article = rec ? mustBeValid(JSON.parse(rec.json)) : BUILTIN;
+    if (rec)
+        state.stamp[rec.id] = rec.updatedAt;
+    state.fromDraft = false;
+    ls.del(LS.draft);
+}
+$("#lib").onclick = (e) => {
+    const b = e.target.closest("button[data-id]");
+    if (!b)
+        return;
+    try {
+        openRecord(state.library.find(r => r.id === b.dataset.id));
+        openSheet(false);
+        scrollTo(0, 0);
+        render();
+        if (ed.open)
+            fillEditor();
+    }
+    catch (err) {
+        toast(err.message, 5000);
+    }
+};
+function onLibrary(records) {
+    state.library = records;
+    const rec = records.find(r => r.id === state.article.id);
+    if (rec && rec.updatedAt !== state.stamp[rec.id]) {
+        const first = state.stamp[rec.id] === undefined;
+        if (ed.open && ed.dirty)
+            toast(ui("remote"), 5000);
+        else if (!(first && state.fromDraft)) {
+            try {
+                openRecord(rec);
+                rerender();
+                if (ed.open)
+                    fillEditor();
+                if (!first)
+                    toast(ui("live"));
+            }
+            catch (err) {
+                toast(err.message, 5000);
+            }
+        }
+    }
+    renderLibrary();
+}
+(async () => {
+    const claude = window.claude;
+    if (!claude?.use) {
+        state.libStatus = "none";
+        renderLibrary();
+        return;
+    }
+    const [db, user, dl] = await Promise.all([claude.use("db"), claude.use("user"), claude.use("downloads")]);
+    state.downloads = dl;
+    if (user) {
+        try {
+            state.canEdit = await user.canEdit();
+        }
+        catch { /* treat as read-only */ }
+    }
+    if (!db) {
+        state.libStatus = "none";
+        renderLibrary();
+        return;
+    }
+    state.db = db;
+    const timer = setTimeout(() => { if (state.libStatus === "loading") {
+        state.libStatus = "none";
+        renderLibrary();
+    } }, 10000);
+    db.collection("articles").onSnapshot((snap) => {
+        clearTimeout(timer);
+        state.libStatus = "ready";
+        onLibrary(snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((r) => typeof r.json === "string")
+            .sort((x, y) => String(y.date || "").localeCompare(String(x.date || ""))));
+    }, () => { clearTimeout(timer); state.libStatus = "none"; renderLibrary(); });
+})();
+const ed = { open: false, dirty: false, tab: "md-en", source: "md", buf: { "md-en": "", "md-zh": "", json: "" } };
+const editor = $("#editor"), src = $("#src"), err = $("#err");
+function fillEditor() {
+    const a = state.article, rec = state.library.find(r => r.id === a.id && r.json === JSON.stringify(a));
+    ed.buf["md-en"] = rec?.md_en || toMarkdown(a, "en");
+    ed.buf["md-zh"] = rec?.md_zh || toMarkdown(a, "zh");
+    ed.buf.json = JSON.stringify(a, null, 2);
+    ed.dirty = false;
+    ed.source = "md";
+    err.textContent = "";
+    showTab(ed.tab, false);
+}
+function showTab(tab, sync = true) {
+    if (sync) {
+        ed.buf[ed.tab] = src.value;
+        if (tab === "json" && ed.source === "md")
+            ed.buf.json = JSON.stringify(state.article, null, 2);
+        if (tab !== "json" && ed.source === "json") {
+            ed.buf["md-en"] = toMarkdown(state.article, "en");
+            ed.buf["md-zh"] = toMarkdown(state.article, "zh");
+        }
+    }
+    ed.tab = tab;
+    src.value = ed.buf[tab];
+    $$("#fmtSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === tab)));
+}
+function showEditor(on) {
+    editor.classList.toggle("on", on);
+    editor.setAttribute("aria-hidden", String(!on));
+    document.body.classList.toggle("ed-open", on);
+}
+function openEditor() { openSheet(false); ed.open = true; document.body.classList.add("editing"); fillEditor(); showEditor(true); src.focus(); }
+function closeEditor() {
+    ed.open = false;
+    ed.dirty = false;
+    showEditor(false);
+    document.body.classList.remove("editing");
+    const rec = state.library.find(r => r.id === state.article.id);
+    if (rec && rec.updatedAt !== state.stamp[rec.id]) {
+        try {
+            openRecord(rec);
+            rerender();
+        }
+        catch { /* keep current */ }
+    }
+}
+/** Parses the editor buffers into an article; returns it, or null with errors shown. */
+function compile() {
+    ed.buf[ed.tab] = src.value;
+    try {
+        if (ed.tab === "json") {
+            const a = mustBeValid(JSON.parse(ed.buf.json));
+            ed.source = "json";
+            err.textContent = "";
+            return a;
+        }
+        const { article, issues } = fromMarkdown({ en: ed.buf["md-en"], zh: ed.buf["md-zh"] || undefined });
+        const a = mustBeValid(article);
+        ed.source = "md";
+        err.textContent = issues.slice(0, 4).join("\n");
+        return a;
+    }
+    catch (e) {
+        err.textContent = e.message || String(e);
+        return null;
+    }
+}
+function applyNow() {
+    const a = compile();
+    if (a) {
+        state.article = a;
+        state.fromDraft = true;
+        ls.set(LS.draft, JSON.stringify(a));
+        rerender();
+    }
+    return a;
+}
+let liveTimer;
+src.addEventListener("input", () => {
+    ed.dirty = true;
+    if (!$("#livePrev").checked)
+        return;
+    clearTimeout(liveTimer);
+    liveTimer = window.setTimeout(applyNow, 350);
+});
+src.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") {
+        e.preventDefault();
+        const s = src.selectionStart;
+        src.setRangeText("  ", s, src.selectionEnd, "end");
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        $("#publishBtn").click();
+    }
+});
+$("#fmtSeg").onclick = (e) => { const b = e.target.closest("button"); if (b)
+    showTab(b.dataset.v); };
+$("#editOpen").onclick = openEditor;
+$("#edClose").onclick = closeEditor;
+$("#edPreview").onclick = () => showEditor(false);
+$("#applyBtn").onclick = () => { if (applyNow())
+    toast(ui("applied")); };
+$("#publishBtn").onclick = async () => {
+    const a = applyNow();
+    if (!a)
+        return;
+    if (!(state.db && state.canEdit)) {
+        toast(ui("libDenied"), 4000);
+        return;
+    }
+    const md = ed.source === "md" ? { en: ed.buf["md-en"], zh: ed.buf["md-zh"] } : undefined;
+    const rec = toRecord(a, md);
+    state.stamp[a.id] = rec.updatedAt;
+    try {
+        await state.db.doc("articles/" + a.id).set(rec);
+        ed.dirty = false;
+        state.fromDraft = false;
+        ls.del(LS.draft);
+        toast(ui("libSaved"));
+    }
+    catch (e) {
+        err.textContent = e?.message || String(e);
+    }
+};
+$("#saveFile").onclick = async () => {
+    ed.buf[ed.tab] = src.value;
+    const id = state.article.id, name = ed.tab === "json" ? `${id}.json` : `${id}.${ed.tab === "md-zh" ? "zh" : "en"}.md`;
+    await deliver(name, ed.buf[ed.tab]);
+};
+$("#loadFile").onclick = () => $("#fileIn").click();
+$("#fileIn").onchange = async (e) => {
+    const input = e.target, f = input.files?.[0];
+    if (!f)
+        return;
+    const text = await f.text();
+    input.value = "";
+    if (/\.json$/i.test(f.name)) {
+        ed.buf.json = text;
+        showTab("json", false);
+    }
+    else {
+        const zh = /^locale:\s*zh/m.test(text.split("\n---")[0]);
+        ed.buf[zh ? "md-zh" : "md-en"] = text;
+        showTab(zh ? "md-zh" : "md-en", false);
+    }
+    ed.dirty = true;
+    applyNow();
+};
+$("#restore").onclick = () => { ls.del(LS.draft); state.article = BUILTIN; state.fromDraft = false; fillEditor(); rerender(); };
+/* ============================== Data, API and MCP ============================== */
+$("#dataOpen").onclick = () => {
+    openSheet(false);
+    const a = state.article;
+    $("#dataPre").textContent = [
+        `Schema      ${a.schema}`, `Article     ${a.id}  (version ${a.version || 1}, ${a.status || "draft"})`,
+        `Locales     ${(a.locales || []).join(", ")}`, `Sections    ${a.sections.length}    Terms ${Object.keys(a.terms || {}).length}`, ``,
+        `Authoring   content/${a.id}.en.md + content/${a.id}.zh.md  (Markdown, one file per language)`,
+        `Library     articles/{id} = { id, schema, slug, title, status, date, updatedAt, json, md_en, md_zh }`, ``,
+        `REST API (Rust content service)`, `  GET  /v1/articles?locale=zh-Hant-HK&status=published`, `  GET  /v1/articles/${a.id}?locale=en`,
+        `  GET  /v1/articles/${a.id}/terms`, `  GET  /v1/terms/{termId}?locale=en`, `  PUT  /v1/articles/${a.id}          (editor token)`,
+        `  GET  /v1/articles/${a.id}/events  (server-sent events: live updates)`, ``,
+        `MCP server (JSON-RPC 2.0 at POST /mcp)`, `  tools/call list_articles | get_article | get_term | search`, ``,
+        `Markdown sync: npx md-sync --dir content --api http://localhost:8080 --watch`,
+    ].join("\n");
+    openModal("#dataModal");
+};
+$("#copyJson").onclick = async () => {
+    try {
+        await navigator.clipboard.writeText(JSON.stringify(state.article, null, 2));
+        toast(ui("copied"));
+    }
+    catch {
+        $("#dataPre").textContent = JSON.stringify(state.article, null, 2);
+    }
+};
+/* ============================== Start ============================== */
+if (state.article.schema !== SCHEMA)
+    state.article = BUILTIN;
+$("#sheetMark").innerHTML = LOGO.mark;
+render();
+document.fonts?.ready.then(() => { measure(); onScroll(); });
+</script>
+</body>
+</html>
